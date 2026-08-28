@@ -1,0 +1,3602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Aeternum — A Life</title>
+</head>
+<body>
+  <div id="app">
+    <div id="toasts"></div>
+
+    <section class="screen active" id="screen-title">
+      <div class="title-art" id="title-av"></div>
+      <div class="mark">AETERNUM</div>
+      <div class="tag">live a life</div>
+      <p class="blurb">School, jobs, love, fame, trouble. Age up. When it matters, play the moment.</p>
+      <div class="btn-row">
+        <button class="btn primary" id="btn-new">New Life</button>
+        <button class="btn" id="btn-continue">Continue</button>
+      </div>
+      <button class="btn sm dev-title-btn" id="btn-dev-toggle">Dev Mode</button>
+    </section>
+
+    <section class="screen" id="screen-create">
+      <div class="create-top">
+        <h1>Create a Life</h1>
+        <p class="sub">Pick a face. Traits stick around.</p>
+      </div>
+      <div class="create-wrap">
+        <div class="create-grid">
+          <div class="panel">
+            <div class="avatar-preview" id="create-av"></div>
+            <div class="slider-row"><span>Skin</span><input id="sl-skin" type="range" min="0" max="5" value="1"></div>
+            <div class="slider-row"><span>Hair</span><input id="sl-hair" type="range" min="0" max="7" value="0"></div>
+            <div class="slider-row"><span>Eyes</span><input id="sl-eyes" type="range" min="0" max="5" value="0"></div>
+            <div class="slider-row"><span>Clothes</span><input id="sl-shirt" type="range" min="0" max="6" value="0"></div>
+            <label class="field">Hair
+              <select id="sl-style"></select>
+            </label>
+            <label class="field">Clothes
+              <select id="sl-clothes"></select>
+            </label>
+          </div>
+          <div>
+            <div class="panel">
+              <h3>Identity</h3>
+              <label class="field">Name
+                <input type="text" id="in-name" placeholder="Given and family" maxlength="40" />
+              </label>
+              <button class="btn sm" id="btn-rand-name">Random name</button>
+              <label class="field">Gender
+                <div class="seg">
+                  <button data-gender="male" class="on">Male</button>
+                  <button data-gender="female">Female</button>
+                </div>
+              </label>
+              <label class="field">Hobby
+                <select id="hobby-sel"></select>
+              </label>
+            </div>
+            <div class="panel mt">
+              <h3>Traits — pick up to three</h3>
+              <div class="trait-pills" id="trait-pills"></div>
+            </div>
+            <div class="mt">
+              <button class="btn primary" id="btn-born">Be born</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-play">
+      <header class="bl-top">
+        <button class="ham" id="btn-menu" type="button">☰</button>
+        <div class="bl-logo"><span>AH</span> AETERNUM</div>
+        <div class="bl-top-right">
+          <div class="chip-star" id="chip-fame">★ 0</div>
+          <button class="chip-tt" id="btn-save" type="button">SAVE<br>LIFE</button>
+        </div>
+      </header>
+
+      <div class="bl-hero">
+        <button class="bl-av" id="hud-av" type="button" aria-label="View body"></button>
+        <div class="bl-id">
+          <div class="nm" id="hud-name">—</div>
+          <div class="job" id="hud-job">😐 Unemployed</div>
+        </div>
+        <div class="bl-cash">
+          <b id="hud-money">$0</b>
+          <small>Bank Balance</small>
+        </div>
+      </div>
+      <div class="bl-ribbon"></div>
+
+      <div class="bl-journal" id="journal">
+        <div class="age-line" id="age-line">Age: 0 years</div>
+        <div id="feed"></div>
+      </div>
+
+      <div class="bl-community"><span>Aeternum · tap Age to live</span></div>
+
+      <nav class="bl-dock">
+        <button class="dock-btn" id="nav-career" type="button"><div class="di">💼</div>Occupation</button>
+        <button class="dock-btn" id="nav-assets" type="button"><div class="di">💰</div>Assets</button>
+        <div class="age-wrap">
+          <button class="age-big" id="btn-age-year" type="button">+<br>Age</button>
+          <button class="age-minus" id="btn-age-month" type="button">−<br>Age</button>
+        </div>
+        <button class="dock-btn" id="nav-people" type="button"><div class="di">♥</div>Relationships</button>
+        <button class="dock-btn" id="nav-activities" type="button"><div class="di">•••</div>Activities</button>
+      </nav>
+
+      <div class="bl-stats">
+        <div class="srow" id="st-happy"><span>😄 Happiness</span><div class="sbar"><i></i></div><em>0%</em></div>
+        <div class="srow" id="st-health"><span>❤️ Health</span><div class="sbar"><i></i></div><em>0%</em></div>
+        <div class="srow" id="st-int"><span>🧠 Smarts</span><div class="sbar"><i></i></div><em>0%</em></div>
+        <div class="srow" id="st-looks"><span>🔥 Looks</span><div class="sbar"><i></i></div><em>0%</em></div>
+      </div>
+    </section>
+
+    <button class="dev-fab" id="dev-fab" type="button">DEV</button>
+    <div class="overlay" id="overlay"></div>
+  </div>
+<style>
+/* AETERNUM — BitLife reference layout */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+
+:root {
+  --bg: #1c1c1e;
+  --bg-2: #252528;
+  --bg-3: #2c2c30;
+  --top: #0d0d0d;
+  --dock: #0b1b2b;
+  --teal: #2ad4c7;
+  --teal-2: #1aa89e;
+  --yellow: #ffe14a;
+  --green: #22c55e;
+  --green-dk: #15803d;
+  --red: #ef4444;
+  --purple: #6b3fa0;
+  --ink: #f3f3f3;
+  --muted: #9aa0a6;
+  --font: 'Nunito', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: var(--font); background: #000; color: var(--ink); overflow: hidden; }
+#app { height: 100%; width: 100%; max-width: 430px; margin: 0 auto; position: relative; background: var(--bg); }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; }
+.screen.active { display: flex; }
+@keyframes pop { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* title */
+#screen-title {
+  background: radial-gradient(circle at 50% 0%, #1a3a3a, #0d0d0d 55%);
+  align-items: center; justify-content: center; text-align: center; padding: 24px;
+}
+#screen-title .mark { font-size: 42px; font-weight: 900; color: var(--yellow); letter-spacing: .04em; }
+#screen-title .tag { color: var(--teal); font-weight: 800; letter-spacing: .24em; text-transform: uppercase; font-size: 12px; margin: 6px 0 16px; }
+#screen-title .blurb { color: #c8c8c8; font-weight: 700; max-width: 320px; margin-bottom: 22px; line-height: 1.45; }
+.title-art { width: 110px; height: 110px; margin: 0 auto 14px; border-radius: 50%; overflow: hidden; border: 3px solid #333; }
+
+.btn { font-family: var(--font); border: 0; background: #fff; color: #111; padding: 12px 22px; border-radius: 999px; cursor: pointer; font-size: 15px; font-weight: 800; }
+.btn.primary { background: var(--yellow); color: #111; }
+.btn.ghost { background: #2a2a2e; color: #fff; }
+.btn.danger { background: var(--red); color: #fff; }
+.btn.teal { background: var(--teal); color: #082; }
+.btn.sm { padding: 7px 12px; font-size: 12px; }
+.btn:disabled { opacity: .4; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+/* create */
+#screen-create { background: var(--bg); overflow: auto; }
+.create-top { background: var(--top); padding: 16px 16px 12px; border-bottom: 1px solid #333; }
+.create-top h1 { font-size: 22px; font-weight: 900; }
+.create-top .sub { color: var(--muted); font-weight: 700; font-size: 13px; }
+.create-wrap { padding: 14px 14px 40px; }
+.create-grid { display: grid; gap: 12px; }
+.panel { background: var(--bg-2); border-radius: 14px; padding: 14px; }
+.panel h3 { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+label.field { display: block; margin-bottom: 10px; font-size: 12px; color: var(--muted); font-weight: 800; }
+input[type="text"], select { width: 100%; margin-top: 6px; background: #1a1a1c; border: 1px solid #3a3a40; color: #fff; padding: 10px 12px; border-radius: 10px; font-family: var(--font); font-weight: 700; }
+.seg { display: flex; gap: 6px; margin-top: 6px; }
+.seg button { flex: 1; background: #1a1a1c; border: 1px solid #3a3a40; color: var(--muted); padding: 8px; border-radius: 10px; font-weight: 800; font-family: var(--font); cursor: pointer; }
+.seg button.on { border-color: var(--teal); color: var(--teal); }
+.avatar-preview { width: 140px; height: 140px; margin: 0 auto 12px; border-radius: 50%; overflow: hidden; background: #3a3a40; }
+.slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; color: var(--muted); font-weight: 800; }
+.slider-row span { width: 64px; }
+.slider-row input { flex: 1; accent-color: var(--teal); }
+.trait-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.trait-pills button { background: #1a1a1c; border: 1px solid #3a3a40; color: var(--muted); padding: 6px 10px; border-radius: 999px; font-weight: 800; font-family: var(--font); cursor: pointer; }
+.trait-pills button.on { border-color: var(--teal); color: var(--teal); }
+
+/* ===== PLAY: BitLife chrome ===== */
+#screen-play { background: var(--bg); }
+
+.bl-top {
+  height: 52px; background: #000; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 10px; flex-shrink: 0;
+}
+.bl-top .ham { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #666; background: #1a1a1a; color: #ddd; font-size: 16px; font-weight: 900; }
+.bl-logo { font-weight: 900; font-size: 22px; color: var(--yellow); letter-spacing: .02em; display: flex; align-items: center; gap: 6px; }
+.bl-logo span { font-size: 10px; background: #fff; color: #000; border-radius: 4px; padding: 2px 4px; letter-spacing: 0; }
+.bl-top-right { display: flex; gap: 6px; align-items: center; }
+.chip-star { background: #111; border: 1px solid #444; color: var(--yellow); border-radius: 999px; padding: 4px 8px; font-weight: 900; font-size: 12px; }
+.chip-tt { background: #111; border: 1px solid #c9a227; color: #f0d36a; border-radius: 999px; padding: 4px 8px; font-weight: 800; font-size: 9px; text-align: center; line-height: 1.15; }
+
+.bl-hero {
+  background: #2a2a2e; display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; flex-shrink: 0;
+}
+.bl-av {
+  width: 54px; height: 54px; border-radius: 50%; overflow: hidden; background: #3d3d44;
+  flex-shrink: 0; border: 2px solid #444; cursor: pointer;
+}
+.bl-id { flex: 1; min-width: 0; }
+.bl-id .nm { color: var(--teal); font-weight: 800; font-size: 16px; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bl-id .job { color: #cfcfcf; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.bl-cash { text-align: right; }
+.bl-cash b { display: block; font-size: 18px; font-weight: 900; }
+.bl-cash small { color: var(--teal); font-size: 11px; font-weight: 800; }
+
+.bl-ribbon { height: 8px; background: linear-gradient(90deg, #5b2d8c, #7a48b3); flex-shrink: 0; }
+
+.bl-journal { flex: 1; overflow: auto; padding: 12px 14px 16px; background: #222226; }
+.age-line { color: var(--teal); font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+.journal-p { color: #eee; font-size: 15px; font-weight: 700; line-height: 1.45; margin: 0 0 8px; }
+.journal-p.bad { color: #ffb4b4; }
+.journal-p.good { color: #b8f0c8; }
+.journal-p.gold { color: #ffe08a; }
+
+.bl-community { padding: 0 12px 6px; background: #222226; flex-shrink: 0; }
+.bl-community span { display: inline-block; background: #5b2d8c; color: #fff; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 999px 999px 0 0; }
+
+.bl-dock {
+  background: var(--dock); display: grid; grid-template-columns: 1fr 1fr 86px 1fr 1fr;
+  align-items: end; padding: 8px 6px 10px; flex-shrink: 0; position: relative;
+}
+.dock-btn { background: none; border: 0; color: var(--teal); font-family: var(--font); font-weight: 800; font-size: 10px; cursor: pointer; padding: 4px 0 0; }
+.dock-btn .di { width: 36px; height: 36px; margin: 0 auto 4px; border-radius: 50%; background: #123246; color: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.age-wrap { position: relative; display: flex; justify-content: center; }
+.age-big {
+  width: 76px; height: 76px; border-radius: 50%; border: 0; background: var(--green);
+  color: #fff; font-family: var(--font); font-weight: 900; font-size: 16px; line-height: 1.05;
+  box-shadow: 0 0 0 6px #0b1b2b, 0 8px 0 #15803d; cursor: pointer; margin-top: -28px;
+}
+.age-minus {
+  position: absolute; right: -2px; bottom: 6px; width: 28px; height: 28px; border-radius: 50%;
+  border: 0; background: var(--red); color: #fff; font-weight: 900; font-size: 11px; line-height: 1;
+  box-shadow: 0 2px 0 #991b1b; cursor: pointer;
+}
+
+.bl-stats { background: #111; padding: 8px 12px 10px; flex-shrink: 0; }
+.srow { display: grid; grid-template-columns: 92px 1fr 40px; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 12px; font-weight: 800; }
+.srow span { color: var(--teal); }
+.sbar { height: 12px; background: #2a2a2e; border-radius: 3px; overflow: hidden; }
+.sbar i { display: block; height: 100%; background: var(--green); width: 50%; }
+.srow em { color: #fff; font-style: normal; text-align: right; font-size: 11px; }
+
+/* overlay / modal */
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,.62); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.overlay.show { display: flex; animation: fadeIn .2s ease; }
+.modal { width: min(400px, 100%); background: #2a2a2e; color: #fff; border-radius: 18px; padding: 18px; max-height: 86vh; overflow: auto; animation: pop .22s ease; }
+.modal.wide { width: min(400px, 100%); }
+.modal h2 { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: var(--teal); }
+.modal .lede { color: #c8c8c8; margin-bottom: 12px; line-height: 1.45; font-weight: 700; }
+.choices { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.choice { background: #1c1c1e; border: 1px solid #3a3a40; border-radius: 12px; padding: 12px; cursor: pointer; text-align: left; color: #fff; font-size: 14px; font-weight: 800; font-family: var(--font); }
+.choice:hover { border-color: var(--teal); }
+.choice small { display: block; color: var(--muted); margin-top: 4px; font-size: 11px; }
+
+.cutscene { width: min(400px, 100%); background: #1c1c1e; border-radius: 18px; overflow: hidden; }
+.cs-stage { height: 210px; display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding-bottom: 8px; background: linear-gradient(#4aa, #7c7 55%); }
+.cs-stage.park { background: linear-gradient(#7ec8ff 0 58%, #5aa85a 58%); }
+.cs-stage.office { background: linear-gradient(#445, #334); }
+.cs-stage.night { background: linear-gradient(#14204a, #2a1a4a); }
+.cs-stage.home { background: linear-gradient(#c4844a, #8a5a30); }
+.cs-stage.hospital { background: linear-gradient(#6aa8b8, #3a6a78); }
+.cs-stage.court { background: linear-gradient(#8a7a58, #5a4a30); }
+.cs-stage.stadium { background: linear-gradient(#4aa 0 50%, #3a7a32 50%); }
+.sprite { width: 84px; height: 84px; border-radius: 50%; overflow: hidden; border: 3px solid #fff; background: #444; }
+.cs-ui { padding: 14px 16px 16px; }
+.speaker { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); font-weight: 800; }
+.line { font-size: 16px; line-height: 1.4; margin: 8px 0 10px; min-height: 44px; font-weight: 800; }
+
+.mg { width: min(400px, 100%); background: #2a2a2e; border-radius: 18px; padding: 16px; }
+.mg h2 { font-size: 22px; font-weight: 900; color: var(--teal); }
+.mg-canvas-wrap { margin: 12px 0; background: #141416; border-radius: 12px; height: 220px; position: relative; overflow: hidden; }
+.mg-hud { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 800; }
+.timer-bar { height: 6px; background: #111; border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.timer-bar i { display: block; height: 100%; background: #f59e0b; width: 100%; }
+
+#toasts { position: absolute; right: 10px; top: 58px; display: flex; flex-direction: column; gap: 6px; z-index: 80; pointer-events: none; }
+.toast { pointer-events: auto; background: #2a2a2e; border-radius: 12px; padding: 8px 12px; min-width: 180px; font-size: 12px; font-weight: 700; box-shadow: 0 8px 20px #0008; }
+.toast b { color: var(--teal); display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+
+.sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card { background: #1c1c1e; border-radius: 12px; padding: 10px; }
+.card h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.card p { font-size: 12px; color: var(--muted); font-weight: 700; }
+.person { display: flex; gap: 10px; align-items: center; background: #1c1c1e; border-radius: 12px; padding: 8px; margin-bottom: 8px; cursor: pointer; }
+.person .mini { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: #333; }
+.rel-meta { font-size: 12px; color: var(--muted); font-weight: 700; }
+.end-wrap { text-align: center; padding: 12px 4px; }
+.end-wrap h1 { font-size: 56px; font-weight: 900; color: var(--teal); }
+.obit { color: #bbb; line-height: 1.55; font-weight: 700; }
+
+.hide { display: none !important; }
+.center { text-align: center; }
+.mt { margin-top: 12px; }
+.gold { color: #ffe08a; }
+.ok { color: #86efac; }
+.bad { color: #fca5a5; }
+.muted { color: var(--muted); }
+.tiny { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+.timing-track { position: absolute; left: 8%; right: 8%; top: 50%; height: 20px; transform: translateY(-50%); background: #333; border-radius: 99px; overflow: hidden; }
+.timing-zone { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,.45); border-left: 3px solid var(--green); border-right: 3px solid var(--green); }
+.timing-needle { position: absolute; top: -8px; bottom: -8px; width: 4px; background: #f59e0b; }
+.inbox-item { background: #1c1c1e; border: 1px solid #3a3a40; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; font-size: 13px; font-weight: 800; }
+.pri.high { color: var(--red); } .pri.med { color: #f59e0b; } .pri.low { color: var(--teal); }
+.target { position: absolute; width: 38px; height: 38px; border: 3px solid #f59e0b; border-radius: 50%; transform: translate(-50%,-50%); cursor: pointer; }
+.target::after { content:''; position: absolute; inset: 10px; border: 2px solid var(--yellow); border-radius: 50%; }
+.kb { font-size: 12px; color: var(--muted); margin-top: 6px; font-weight: 700; }
+.av svg, .avatar-preview svg, .mini svg, .sprite svg, .title-art svg, .bl-av svg, .body-av svg { width: 100%; height: 100%; display: block; }
+
+.body-av { width: 180px; height: 340px; margin: 0 auto; background: #1a1a1c; border-radius: 16px; overflow: hidden; }
+
+.dev-fab { position: absolute; left: 8px; bottom: 168px; z-index: 90; background: #111; color: var(--yellow); border: 1px solid #444; border-radius: 999px; padding: 6px 10px; font-family: var(--font); font-weight: 900; font-size: 11px; cursor: pointer; display: none; }
+.dev-fab.show { display: block; }
+.dev-title-btn { margin-top: 16px; background: #111; color: var(--yellow); }
+.dev-panel { width: min(400px, 100%); background: #2a2a2e; border-radius: 16px; max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; }
+.dev-head { background: #111; color: #fff; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+.dev-tabs { display: flex; gap: 6px; padding: 8px 10px; background: #1c1c1e; flex-wrap: wrap; }
+.dev-tabs button { border: 0; background: #2a2a2e; border-radius: 999px; padding: 6px 10px; font-family: var(--font); font-weight: 800; cursor: pointer; color: var(--muted); }
+.dev-tabs button.on { background: var(--yellow); color: #111; }
+.dev-body { padding: 10px 12px 16px; overflow: auto; }
+.dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dev-item { background: #1c1c1e; border-radius: 12px; padding: 10px; text-align: left; border: 0; cursor: pointer; font-family: var(--font); color: #fff; }
+.dev-item b { display: block; font-size: 13px; font-weight: 800; }
+.dev-item span { font-size: 10px; color: var(--muted); font-weight: 700; }
+.dev-cheats { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.action-list { display: flex; flex-direction: column; gap: 8px; }
+.action { background: #1c1c1e; border: 0; border-radius: 12px; padding: 12px; cursor: pointer; text-align: left; color: #fff; font-family: var(--font); width: 100%; }
+.action .t { font-size: 14px; font-weight: 800; }
+.action .d { font-size: 12px; color: var(--muted); font-weight: 700; }
+.action .cost { float: right; font-size: 10px; color: #000; background: var(--teal); padding: 2px 8px; border-radius: 999px; font-weight: 800; }
+
+.overlay.sheet-full { align-items: stretch; justify-content: stretch; padding: 0; background: #121214; }
+.bl-sheet { width: 100%; height: 100%; display: flex; flex-direction: column; background: #1a1a1e; }
+.bl-sheet-bar { height: 48px; background: #0b1b2b; display: flex; align-items: center; gap: 10px; padding: 0 10px; flex-shrink: 0; }
+.bl-x { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #89c; background: transparent; color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; }
+.bl-sheet-title { flex: 1; text-align: center; font-weight: 900; letter-spacing: .12em; font-size: 16px; padding-right: 32px; }
+.bl-sheet-body { flex: 1; overflow: auto; }
+.bl-sec { background: #2a2a30; color: #bbb; font-size: 12px; font-weight: 800; text-align: center; padding: 6px; }
+.bl-row { width: 100%; display: flex; align-items: center; gap: 12px; background: #1c1c20; border: 0; border-bottom: 1px solid #2a2a30; color: #fff; text-align: left; padding: 12px 14px; font-family: inherit; cursor: pointer; }
+.bl-row.dim { opacity: .4; }
+.bl-ico { font-size: 26px; width: 36px; text-align: center; }
+.bl-copy { flex: 1; min-width: 0; }
+.bl-copy b { display: block; color: #3ec8e8; font-size: 16px; font-weight: 800; }
+.bl-copy small { display: block; color: #7ec8d8; font-size: 12px; font-weight: 700; }
+.rel-bar { display: block; height: 6px; background: #333; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.rel-bar > i { display: block; height: 100%; background: #22c55e; }
+.bl-chev { color: #3ec8e8; font-weight: 900; }
+
+</style>
+<script>
+/* Aeternum core: event bus, RNG, time, utilities */
+window.LS = window.LS || {};
+
+LS.clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+LS.rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+LS.pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+LS.chance = (p) => Math.random() * 100 < p;
+LS.id = () => Math.random().toString(36).slice(2, 10);
+LS.money = (n) => {
+  const s = n < 0 ? '-' : '';
+  const v = Math.abs(Math.round(n));
+  return s + '$' + v.toLocaleString();
+};
+LS.lerp = (a, b, t) => a + (b - a) * t;
+
+LS.MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+LS.Bus = {
+  _h: {},
+  on(e, fn) { (this._h[e] = this._h[e] || []).push(fn); return () => this.off(e, fn); },
+  off(e, fn) { this._h[e] = (this._h[e] || []).filter(f => f !== fn); },
+  emit(e, payload) { (this._h[e] || []).forEach(fn => { try { fn(payload); } catch (err) { console.error(err); } }); }
+};
+
+LS.stageOf = function (age) {
+  if (age < 5) return 'infant';
+  if (age < 13) return 'child';
+  if (age < 18) return 'teen';
+  if (age < 30) return 'young';
+  if (age < 55) return 'adult';
+  if (age < 75) return 'senior';
+  return 'elder';
+};
+
+LS.stageLabel = {
+  infant: 'Early Childhood',
+  child: 'Childhood',
+  teen: 'Adolescence',
+  young: 'Young Adulthood',
+  adult: 'Adulthood',
+  senior: 'Later Life',
+  elder: 'Twilight Years'
+};
+
+LS.SKIN = ['#f9d7b8','#f0c090','#d9a066','#c07a42','#8d5530','#5a3722'];
+LS.HAIR = ['#1c1410','#3d2316','#6e3d18','#d4a84a','#efe6d6','#243a62','#b02a2a','#5a2870'];
+LS.EYE = ['#3a7ec4','#3d8a48','#6b4424','#2a2418','#5a8aaa','#1aa8b0'];
+LS.SHIRT = ['#ff8a3d','#12b5c4','#ff5d8f','#9b6bff','#2ecc71','#4da3ff','#ffcd00'];
+
+LS.drawAvatar = function (el, look) {
+  if (!el) return;
+  const s = look || {};
+  const skin = LS.SKIN[s.skin|0] || LS.SKIN[1];
+  const hair = LS.HAIR[s.hair|0] || LS.HAIR[0];
+  const eye = LS.EYE[s.eyes|0] || LS.EYE[0];
+  const shirt = LS.SHIRT[s.shirt|0] || LS.SHIRT[0];
+  const style = s.hairStyle || 'short';
+  const blush = '#f3a8a0';
+  let hairSvg = '';
+  if (style === 'long') {
+    hairSvg = `
+      <ellipse cx="50" cy="78" rx="34" ry="28" fill="${hair}"/>
+      <path d="M18 42 C18 18 82 18 82 42 L80 86 Q50 100 20 86 Z" fill="${hair}"/>
+      <ellipse cx="50" cy="28" rx="30" ry="16" fill="${hair}"/>`;
+  } else {
+    hairSvg = `
+      <path d="M20 44 C20 16 80 16 80 44 L78 40 Q50 18 22 40 Z" fill="${hair}"/>
+      <ellipse cx="50" cy="30" rx="28" ry="14" fill="${hair}"/>`;
+  }
+  el.style.background = '#4a4a52';
+  el.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="50" fill="#4a4a52"/>
+    <path d="M28 86 C28 72 72 72 72 86 L72 100 L28 100 Z" fill="${shirt}"/>
+    <rect x="42" y="72" width="16" height="10" rx="4" fill="${skin}"/>
+    <ellipse cx="50" cy="52" rx="24" ry="26" fill="${skin}"/>
+    <ellipse cx="26" cy="54" rx="5" ry="7" fill="${skin}"/>
+    <ellipse cx="74" cy="54" rx="5" ry="7" fill="${skin}"/>
+    ${hairSvg}
+    <ellipse cx="41" cy="52" rx="4.2" ry="5" fill="#fff"/>
+    <ellipse cx="59" cy="52" rx="4.2" ry="5" fill="#fff"/>
+    <circle cx="41.5" cy="53" r="2.3" fill="${eye}"/>
+    <circle cx="59.5" cy="53" r="2.3" fill="${eye}"/>
+    <circle cx="42.4" cy="52.2" r="0.8" fill="#fff"/>
+    <circle cx="60.4" cy="52.2" r="0.8" fill="#fff"/>
+    <path d="M34 44 Q41 40 46 44" stroke="#2b2f36" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M54 44 Q59 40 66 44" stroke="#2b2f36" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="36" cy="60" rx="4" ry="2.2" fill="${blush}" opacity=".45"/>
+    <ellipse cx="64" cy="60" rx="4" ry="2.2" fill="${blush}" opacity=".45"/>
+    <path d="M44 64 Q50 69 56 64" stroke="#c45a4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+};
+
+LS.drawBody = function (el, look) {
+  if (!el) return;
+  const s = look || {};
+  const skin = LS.SKIN[s.skin|0] || LS.SKIN[1];
+  const hair = LS.HAIR[s.hair|0] || LS.HAIR[0];
+  const eye = LS.EYE[s.eyes|0] || LS.EYE[0];
+  const shirt = LS.SHIRT[s.shirt|0] || LS.SHIRT[0];
+  const pants = '#2a3348';
+  const shoes = '#1a1a1a';
+  const long = (s.hairStyle || 'short') === 'long';
+  el.innerHTML = `<svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="240" fill="#1a1a1c"/>
+    <ellipse cx="60" cy="232" rx="28" ry="6" fill="#000" opacity=".35"/>
+    <path d="M38 150 L34 214 L48 214 L50 150 Z" fill="${pants}"/>
+    <path d="M70 150 L72 214 L86 214 L82 150 Z" fill="${pants}"/>
+    <path d="M32 214 L50 214 L50 226 L30 226 Z" fill="${shoes}"/>
+    <path d="M70 214 L88 214 L90 226 L70 226 Z" fill="${shoes}"/>
+    <path d="M40 108 L38 152 L82 152 L80 108 Z" fill="${pants}"/>
+    <path d="M36 78 C36 70 84 70 84 78 L86 118 Q60 128 34 118 Z" fill="${shirt}"/>
+    <path d="M36 82 L22 128 L32 132 L44 90 Z" fill="${shirt}"/>
+    <path d="M84 82 L98 128 L88 132 L76 90 Z" fill="${shirt}"/>
+    <circle cx="20" cy="132" r="6" fill="${skin}"/>
+    <circle cx="100" cy="132" r="6" fill="${skin}"/>
+    <rect x="52" y="70" width="16" height="12" rx="4" fill="${skin}"/>
+    ${long ? `<path d="M32 48 C32 18 88 18 88 48 L86 92 Q60 104 34 92 Z" fill="${hair}"/>` : ''}
+    <ellipse cx="60" cy="46" rx="22" ry="24" fill="${skin}"/>
+    <ellipse cx="38" cy="48" rx="5" ry="6" fill="${skin}"/>
+    <ellipse cx="82" cy="48" rx="5" ry="6" fill="${skin}"/>
+    ${long ? '' : `<path d="M40 38 C40 16 80 16 80 38 L78 34 Q60 18 42 34 Z" fill="${hair}"/>`}
+    <ellipse cx="52" cy="46" rx="4" ry="4.6" fill="#fff"/>
+    <ellipse cx="68" cy="46" rx="4" ry="4.6" fill="#fff"/>
+    <circle cx="52.4" cy="47" r="2.1" fill="${eye}"/>
+    <circle cx="68.4" cy="47" r="2.1" fill="${eye}"/>
+    <path d="M54 56 Q60 61 66 56" stroke="#c45a4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+};
+
+LS.Save = {
+  KEY: 'aeternum.save.v1',
+  write(state) {
+    try { localStorage.setItem(this.KEY, JSON.stringify(state)); return true; }
+    catch (e) { return false; }
+  },
+  read() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  },
+  clear() { localStorage.removeItem(this.KEY); },
+  has() { return !!localStorage.getItem(this.KEY); }
+};
+
+
+/* Gendered cartoon avatars + real-world clothing */
+window.LS = window.LS || {};
+
+LS.HAIR_STYLES = [
+  { id:'short', name:'Short' },
+  { id:'buzz', name:'Buzz' },
+  { id:'undercut', name:'Undercut' },
+  { id:'long', name:'Long' },
+  { id:'ponytail', name:'Ponytail' },
+  { id:'bun', name:'Bun' },
+  { id:'afro', name:'Afro' },
+  { id:'waves', name:'Waves' }
+];
+
+LS.CLOTHES = [
+  { id:'tee', name:'T-shirt' },
+  { id:'hoodie', name:'Hoodie' },
+  { id:'shirt', name:'Button shirt' },
+  { id:'blouse', name:'Blouse' },
+  { id:'dress', name:'Dress' },
+  { id:'suit', name:'Suit' },
+  { id:'athletic', name:'Athletic kit' },
+  { id:'jacket', name:'Jacket' }
+];
+
+LS.CLOTH_HEX = {
+  tee: ['#e8e8e8','#2b2b2b','#c45a3a','#2a6f9a','#3d8a48'],
+  hoodie: ['#3a3a40','#1f4d6a','#6b2a3a','#2a4a32'],
+  shirt: ['#f4f1ea','#2a3a58','#8a2a2a','#1a1a1a'],
+  blouse: ['#f3d6d0','#e8e4dc','#7a3a4a','#3a5a78'],
+  dress: ['#c43a5a','#2a2a38','#d4a24a','#3a6a8a'],
+  suit: ['#1c1c22','#2a3348','#3a2a22','#1a2a3a'],
+  athletic: ['#1a1a1a','#c43a3a','#2a6a9a','#2ecc71'],
+  jacket: ['#2a2418','#1a1a1a','#3a4a38','#4a2a22']
+};
+
+LS.hairSvg = function (style, hair, cx, top) {
+  cx = cx || 50;
+  if (style === 'buzz') return `<ellipse cx="${cx}" cy="${top+6}" rx="22" ry="10" fill="${hair}" opacity=".85"/>`;
+  if (style === 'undercut') return `<path d="M${cx-22} ${top+16} C${cx-18} ${top-4} ${cx+22} ${top-6} ${cx+22} ${top+12} L${cx+16} ${top+10} Q${cx} ${top} ${cx-14} ${top+12} Z" fill="${hair}"/>`;
+  if (style === 'afro') return `<circle cx="${cx}" cy="${top+10}" r="28" fill="${hair}"/><circle cx="${cx-16}" cy="${top+16}" r="14" fill="${hair}"/><circle cx="${cx+16}" cy="${top+16}" r="14" fill="${hair}"/>`;
+  if (style === 'bun') return `<path d="M${cx-22} ${top+18} C${cx-20} ${top} ${cx+20} ${top} ${cx+22} ${top+18} Z" fill="${hair}"/><circle cx="${cx}" cy="${top-2}" r="8" fill="${hair}"/>`;
+  if (style === 'ponytail') return `<path d="M${cx-22} ${top+16} C${cx-16} ${top-2} ${cx+20} ${top} ${cx+22} ${top+18} Z" fill="${hair}"/><path d="M${cx+16} ${top+10} Q${cx+34} ${top+40} ${cx+18} ${top+58}" stroke="${hair}" stroke-width="9" fill="none" stroke-linecap="round"/>`;
+  if (style === 'long' || style === 'waves') return `<path d="M${cx-28} ${top+14} C${cx-26} ${top-8} ${cx+26} ${top-8} ${cx+28} ${top+14} L${cx+26} ${top+56} Q${cx} ${top+68} ${cx-26} ${top+56} Z" fill="${hair}"/>`;
+  return `<path d="M${cx-24} ${top+18} C${cx-22} ${top-2} ${cx+22} ${top-2} ${cx+24} ${top+18} L${cx+20} ${top+12} Q${cx} ${top} ${cx-20} ${top+12} Z" fill="${hair}"/>`;
+};
+
+LS.drawAvatar = function (el, look) {
+  if (!el) return;
+  const s = look || {};
+  const g = s.gender || 'male';
+  const skin = LS.SKIN[s.skin|0] || LS.SKIN[1];
+  const hair = LS.HAIR[s.hair|0] || LS.HAIR[0];
+  const eye = LS.EYE[s.eyes|0] || LS.EYE[0];
+  const cloth = s.clothes || (g === 'female' ? 'blouse' : 'tee');
+  const palette = LS.CLOTH_HEX[cloth] || LS.CLOTH_HEX.tee;
+  const col = palette[(s.shirt|0) % palette.length];
+  const style = s.hairStyle || (g === 'female' ? 'long' : 'short');
+  const jaw = g === 'female' ? 23 : 25;
+  const lashes = g === 'female'
+    ? `<path d="M36 49 L33 46" stroke="#1a1a1a" stroke-width="1.2"/><path d="M64 49 L67 46" stroke="#1a1a1a" stroke-width="1.2"/>`
+    : '';
+  el.style.background = '#3a3a42';
+  el.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="50" fill="#3a3a42"/>
+    <path d="M26 88 C28 70 72 70 74 88 L74 100 L26 100 Z" fill="${col}"/>
+    ${cloth==='hoodie' ? `<path d="M30 78 Q50 92 70 78" fill="none" stroke="${col}" stroke-width="5"/>` : ''}
+    ${cloth==='suit' ? `<path d="M50 78 L50 100" stroke="#eee" stroke-width="2"/><path d="M42 78 L50 92 L58 78" fill="#eee"/>` : ''}
+    <rect x="42" y="70" width="16" height="12" rx="4" fill="${skin}"/>
+    <ellipse cx="50" cy="52" rx="${jaw}" ry="26" fill="${skin}"/>
+    <ellipse cx="26" cy="54" rx="5" ry="6.5" fill="${skin}"/>
+    <ellipse cx="74" cy="54" rx="5" ry="6.5" fill="${skin}"/>
+    ${LS.hairSvg(style, hair, 50, 22)}
+    <ellipse cx="41" cy="52" rx="4.3" ry="5.1" fill="#fff"/>
+    <ellipse cx="59" cy="52" rx="4.3" ry="5.1" fill="#fff"/>
+    <circle cx="41.6" cy="53" r="2.2" fill="${eye}"/>
+    <circle cx="59.6" cy="53" r="2.2" fill="${eye}"/>
+    ${lashes}
+    <ellipse cx="36" cy="60" rx="4" ry="2.1" fill="#f3a8a0" opacity=".4"/>
+    <ellipse cx="64" cy="60" rx="4" ry="2.1" fill="#f3a8a0" opacity=".4"/>
+    <path d="M44 64 Q50 69 56 64" stroke="#c45a4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+};
+
+LS.drawBody = function (el, look) {
+  if (!el) return;
+  const s = look || {};
+  const g = s.gender || 'male';
+  const skin = LS.SKIN[s.skin|0] || LS.SKIN[1];
+  const hair = LS.HAIR[s.hair|0] || LS.HAIR[0];
+  const eye = LS.EYE[s.eyes|0] || LS.EYE[0];
+  const cloth = s.clothes || (g === 'female' ? 'blouse' : 'tee');
+  const palette = LS.CLOTH_HEX[cloth] || LS.CLOTH_HEX.tee;
+  const col = palette[(s.shirt|0) % palette.length];
+  const style = s.hairStyle || (g === 'female' ? 'long' : 'short');
+  const hip = g === 'female' ? 26 : 22;
+  const sh = g === 'female' ? 18 : 22;
+  const isDress = cloth === 'dress';
+  const pants = cloth === 'athletic' ? '#1a1a1a' : cloth === 'suit' ? col : '#2a3344';
+  el.innerHTML = `<svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="240" fill="#16161a"/>
+    <ellipse cx="60" cy="230" rx="26" ry="5" fill="#000" opacity=".35"/>
+    ${isDress ? `
+      <path d="M42 108 L28 168 L92 168 L78 108 Z" fill="${col}"/>
+      <path d="M36 168 L34 214 L50 214 L50 168 Z" fill="${skin}"/>
+      <path d="M70 168 L70 214 L86 214 L84 168 Z" fill="${skin}"/>
+    ` : `
+      <path d="M40 148 L36 214 L50 214 L52 148 Z" fill="${pants}"/>
+      <path d="M68 148 L70 214 L84 214 L80 148 Z" fill="${pants}"/>
+      <path d="M40 108 L38 152 L82 152 L80 108 Z" fill="${pants}"/>
+    `}
+    <path d="M28 214 L50 214 L50 226 L26 226 Z" fill="#111"/>
+    <path d="M70 214 L94 214 L94 226 L70 226 Z" fill="#111"/>
+    <path d="M${60-sh} 76 C${60-sh} 70 ${60+sh} 70 ${60+sh} 76 L${60+sh+4} 118 Q60 128 ${60-sh-4} 118 Z" fill="${col}"/>
+    ${cloth==='hoodie' ? `<path d="M44 70 Q60 62 76 70 L78 88 L42 88 Z" fill="${col}"/>` : ''}
+    ${cloth==='suit' ? `<path d="M60 80 L60 118" stroke="#eee" stroke-width="2"/><path d="M52 80 L60 96 L68 80" fill="#f4f1ea"/>` : ''}
+    ${cloth==='jacket' ? `<path d="M40 78 L36 118 M80 78 L84 118" stroke="#111" stroke-width="3"/>` : ''}
+    <path d="M${60-sh} 82 L22 128 L32 132 L${60-sh+8} 90 Z" fill="${col}"/>
+    <path d="M${60+sh} 82 L98 128 L88 132 L${60+sh-8} 90 Z" fill="${col}"/>
+    <circle cx="20" cy="132" r="6" fill="${skin}"/>
+    <circle cx="100" cy="132" r="6" fill="${skin}"/>
+    <rect x="52" y="68" width="16" height="12" rx="4" fill="${skin}"/>
+    <ellipse cx="60" cy="46" rx="${g==='female'?20:22}" ry="24" fill="${skin}"/>
+    <ellipse cx="38" cy="48" rx="5" ry="6" fill="${skin}"/>
+    <ellipse cx="82" cy="48" rx="5" ry="6" fill="${skin}"/>
+    ${LS.hairSvg(style, hair, 60, 16)}
+    <ellipse cx="52" cy="46" rx="4" ry="4.6" fill="#fff"/>
+    <ellipse cx="68" cy="46" rx="4" ry="4.6" fill="#fff"/>
+    <circle cx="52.4" cy="47" r="2.1" fill="${eye}"/>
+    <circle cx="68.4" cy="47" r="2.1" fill="${eye}"/>
+    <path d="M54 56 Q60 61 66 56" stroke="#c45a4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+};
+
+LS.partnerGenderFor = function (c) {
+  const id = c.identity || {};
+  const sex = id.sexuality || 'straight';
+  const g = c.gender;
+  if (sex === 'bi' || sex === 'questioning') return LS.pick(['male','female']);
+  if (sex === 'gay') return 'male';
+  if (sex === 'lesbian') return 'female';
+  return g === 'male' ? 'female' : 'male';
+};
+
+
+/* Static content — careers, sports, destinations, names, traits */
+window.LS = window.LS || {};
+
+LS.TRAITS = [
+  { id:'ambitious', name:'Ambitious', desc:'Pushes harder for promotions and wealth.' },
+  { id:'charming', name:'Charming', desc:'Social rolls and romance come easier.' },
+  { id:'disciplined', name:'Disciplined', desc:'Training and study yield more.' },
+  { id:'creative', name:'Creative', desc:'Art, acting and content flourish.' },
+  { id:'reckless', name:'Reckless', desc:'Bigger risks, bigger swings.' },
+  { id:'kind', name:'Kind', desc:'Family and friends stay closer.' },
+  { id:'cynical', name:'Cynical', desc:'Harder to impress, harder to fool.' },
+  { id:'athletic', name:'Athletic', desc:'Sports and fitness come naturally.' },
+  { id:'bookish', name:'Bookish', desc:'Academics and professional exams.' },
+  { id:'stoic', name:'Stoic', desc:'Stress bites less; joy also muted.' }
+];
+
+LS.HOBBIES = ['Reading','Football','Music','Gaming','Swimming','Drawing','Running','Chess','Photography','Cooking','Theatre','Coding'];
+
+LS.FIRST_M = ['Harry','James','Oliver','Jack','William','Thomas','Noah','Lucas','Leo','Charlie','Mateo','Diego','Alex','Ryan','Daniel','Samuel','Ethan','Max','Oscar','Hugo'];
+LS.FIRST_F = ['Emma','Olivia','Sophia','Mia','Isla','Ava','Chloe','Grace','Lily','Ella','Sofia','Camila','Amelia','Ruby','Zoe','Harper','Aria','Maya','Eva','Luna'];
+LS.LAST = ['Hayes','Walker','Bennett','Reed','Cole','Shaw','Brennan','Navarro','Silva','Torres','Nguyen','Patel','Khan','Murphy','Walsh','Singh','Chen','Rossi','Andersen','Moreau'];
+
+LS.randomName = (g) => {
+  const first = g === 'female' ? LS.pick(LS.FIRST_F) : LS.pick(LS.FIRST_M);
+  return first + ' ' + LS.pick(LS.LAST);
+};
+
+LS.CAREERS = {
+  student: { id:'student', name:'Student', field:'Education', salary:0, stress:15, prestige:10, minAge:5 },
+  retail: { id:'retail', name:'Retail Associate', field:'Retail', salary:28000, stress:35, prestige:15, minAge:15, minigame:'sales' },
+  hospitality: { id:'hospitality', name:'Hospitality Worker', field:'Hospitality', salary:30000, stress:40, prestige:12, minAge:15 },
+  trades: { id:'trades', name:'Apprentice Trades', field:'Trades', salary:42000, stress:30, prestige:35, minAge:16, minigame:'timing' },
+  office: { id:'office', name:'Office Administrator', field:'Office', salary:48000, stress:35, prestige:30, minAge:18, minigame:'office' },
+  accountant: { id:'accountant', name:'Accountant', field:'Finance', salary:72000, stress:45, prestige:55, minAge:21, reqEdu:'degree', minigame:'office' },
+  teacher: { id:'teacher', name:'Teacher', field:'Education', salary:68000, stress:50, prestige:50, minAge:22, reqEdu:'degree' },
+  nurse: { id:'nurse', name:'Nurse', field:'Medicine', salary:76000, stress:60, prestige:60, minAge:21, reqEdu:'degree', minigame:'doctor' },
+  doctor: { id:'doctor', name:'Doctor', field:'Medicine', salary:140000, stress:70, prestige:85, minAge:26, reqEdu:'medicine', minigame:'doctor' },
+  engineer: { id:'engineer', name:'Engineer', field:'Engineering', salary:95000, stress:50, prestige:70, minAge:22, reqEdu:'degree', minigame:'office' },
+  lawyer: { id:'lawyer', name:'Lawyer', field:'Law', salary:110000, stress:65, prestige:80, minAge:24, reqEdu:'law', minigame:'dialogue' },
+  police: { id:'police', name:'Police Officer', field:'Public Service', salary:78000, stress:55, prestige:55, minAge:19, minigame:'police' },
+  firefighter: { id:'firefighter', name:'Firefighter', field:'Public Service', salary:80000, stress:50, prestige:60, minAge:19, minigame:'timing' },
+  tech: { id:'tech', name:'Software Developer', field:'Technology', salary:105000, stress:45, prestige:70, minAge:19, minigame:'office' },
+  journalist: { id:'journalist', name:'Journalist', field:'Media', salary:62000, stress:50, prestige:45, minAge:20 },
+  sales: { id:'sales', name:'Sales Executive', field:'Sales', salary:70000, stress:50, prestige:40, minAge:18, minigame:'sales' },
+  military: { id:'military', name:'Soldier', field:'Military', salary:56000, stress:55, prestige:50, minAge:18, minigame:'timing' },
+  athlete: { id:'athlete', name:'Professional Athlete', field:'Sport', salary:90000, stress:40, prestige:75, minAge:17, minigame:'sport' },
+  actor: { id:'actor', name:'Actor', field:'Entertainment', salary:50000, stress:40, prestige:70, minAge:16, minigame:'dialogue' },
+  musician: { id:'musician', name:'Musician', field:'Entertainment', salary:35000, stress:30, prestige:55, minAge:16 },
+  influencer: { id:'influencer', name:'Creator / Influencer', field:'Media', salary:20000, stress:35, prestige:40, minAge:16, minigame:'content' },
+  entrepreneur: { id:'entrepreneur', name:'Founder', field:'Business', salary:0, stress:60, prestige:50, minAge:18 },
+  criminal: { id:'criminal', name:'Career Criminal', field:'Underworld', salary:0, stress:70, prestige:5, minAge:16 },
+  retired: { id:'retired', name:'Retired', field:'None', salary:0, stress:10, prestige:20, minAge:55 }
+};
+
+LS.CAREER_TRACKS = {
+  finance: ['retail','office','accountant'],
+  medicine: ['nurse','doctor'],
+  public: ['police','firefighter'],
+  tech: ['office','tech'],
+  sport: ['athlete'],
+  fame: ['actor','musician','influencer']
+};
+
+LS.SPORTS = [
+  { id:'afl', name:'Australian Rules', attr:'fitness', mg:'afl' },
+  { id:'rugby', name:'Rugby', attr:'fitness', mg:'timing' },
+  { id:'soccer', name:'Football', attr:'fitness', mg:'penalty' },
+  { id:'basketball', name:'Basketball', attr:'fitness', mg:'shot' },
+  { id:'tennis', name:'Tennis', attr:'fitness', mg:'timing' },
+  { id:'swimming', name:'Swimming', attr:'fitness', mg:'timing' },
+  { id:'athletics', name:'Athletics', attr:'fitness', mg:'timing' },
+  { id:'boxing', name:'Boxing', attr:'fitness', mg:'boxing' },
+  { id:'cricket', name:'Cricket', attr:'intelligence', mg:'timing' },
+  { id:'golf', name:'Golf', attr:'discipline', mg:'aim' }
+];
+
+LS.HOUSING = [
+  { id:'parents', name:"Parents' Home", cost:0, upkeep:0, quality:40, happy:0 },
+  { id:'share', name:'Share House', cost:0, rent:14000, quality:45, happy:2 },
+  { id:'studio', name:'Studio Apartment', cost:0, rent:22000, quality:50, happy:4 },
+  { id:'apt', name:'Apartment', cost:420000, upkeep:8000, quality:65, happy:8 },
+  { id:'house', name:'Family House', cost:780000, upkeep:14000, quality:80, happy:12 },
+  { id:'luxury', name:'Waterfront Home', cost:2200000, upkeep:32000, quality:95, happy:18 }
+];
+
+LS.VEHICLES = [
+  { id:'none', name:'None', cost:0, status:0 },
+  { id:'used', name:'Used Hatchback', cost:8000, status:15 },
+  { id:'sedan', name:'Reliable Sedan', cost:28000, status:30 },
+  { id:'suv', name:'Family SUV', cost:52000, status:40 },
+  { id:'sport', name:'Sports Coupe', cost:90000, status:55 },
+  { id:'luxury', name:'Luxury Sedan', cost:160000, status:70 }
+];
+
+LS.DESTINATIONS = [
+  { id:'coast', name:'Byron Bay', cost:1800, vibe:'beach', happy:12 },
+  { id:'nz', name:'Queenstown', cost:3200, vibe:'adventure', happy:14 },
+  { id:'tokyo', name:'Tokyo', cost:4500, vibe:'city', happy:16 },
+  { id:'rome', name:'Rome', cost:4800, vibe:'culture', happy:15 },
+  { id:'bali', name:'Ubud', cost:2200, vibe:'retreat', happy:13 },
+  { id:'nyc', name:'New York', cost:5500, vibe:'city', happy:15 },
+  { id:'patagonia', name:'Patagonia', cost:6000, vibe:'adventure', happy:18 },
+  { id:'paris', name:'Paris', cost:5000, vibe:'romance', happy:16 }
+];
+
+LS.BUSINESSES = [
+  { id:'cafe', name:'Neighbourhood Café', capital:80000, risk:35, margin:18 },
+  { id:'trade', name:'Trade Crew', capital:60000, risk:25, margin:22 },
+  { id:'agency', name:'Creative Agency', capital:50000, risk:40, margin:28 },
+  { id:'techco', name:'SaaS Startup', capital:120000, risk:70, margin:40 },
+  { id:'gym', name:'Training Gym', capital:90000, risk:30, margin:20 },
+  { id:'media', name:'Media Company', capital:70000, risk:45, margin:25 }
+];
+
+LS.SKILL_KEYS = ['academics','athletics','art','music','tech','social','business','street','medicine','law','driving'];
+
+
+/* Character factory, mutation helpers, derived stats */
+window.LS = window.LS || {};
+
+LS.newLook = (gender) => ({
+  gender: gender || LS.pick(['male','female']),
+  skin: LS.rand(0, LS.SKIN.length - 1),
+  hair: LS.rand(0, LS.HAIR.length - 1),
+  hairStyle: (gender === 'female') ? LS.pick(['long','ponytail','bun','waves','short']) : LS.pick(['short','buzz','undercut','short']),
+  clothes: (gender === 'female') ? LS.pick(['blouse','tee','dress','jacket']) : LS.pick(['tee','hoodie','shirt','jacket']),
+  eyes: LS.rand(0, LS.EYE.length - 1),
+  shirt: LS.rand(0, 4)
+});
+
+LS.createLife = function (opts) {
+  opts = opts || {};
+  const gender = opts.gender || LS.pick(['male','female']);
+  const year = 1998 + LS.rand(0, 10);
+  const skills = {};
+  LS.SKILL_KEYS.forEach(k => skills[k] = LS.rand(8, 22));
+  if ((opts.traits || []).includes('athletic')) skills.athletics += 15;
+  if ((opts.traits || []).includes('bookish')) skills.academics += 15;
+  if ((opts.traits || []).includes('creative')) { skills.art += 12; skills.music += 8; }
+  if ((opts.traits || []).includes('charming')) skills.social += 12;
+
+  const mother = LS.makeNPC({ role:'parent', gender:'female', age: LS.rand(24, 38) });
+  const father = LS.makeNPC({ role:'parent', gender:'male', age: LS.rand(26, 42) });
+  mother.relation = 'Mother';
+  father.relation = 'Father';
+  mother.bond = LS.rand(55, 90);
+  father.bond = LS.rand(45, 85);
+
+  return {
+    version: 1,
+    id: LS.id(),
+    name: opts.name || LS.randomName(gender),
+    gender,
+    look: Object.assign(LS.newLook(gender), opts.look || {}, { gender: (opts.look && opts.look.gender) || gender }),
+    identity: opts.identity || { sexuality: 'straight', genderId: gender, trans: false },
+    traits: opts.traits || [LS.pick(LS.TRAITS).id],
+    hobby: opts.hobby || LS.pick(LS.HOBBIES),
+    birthYear: year,
+    calYear: year,
+    month: LS.rand(0, 11),
+    ageYears: 0,
+    ageMonths: 0,
+    alive: true,
+    causeOfDeath: null,
+    city: 'Sydney',
+    country: 'Australia',
+
+    intel: opts.intel ?? LS.rand(40, 70),
+    charisma: opts.charisma ?? LS.rand(40, 70),
+    fitness: opts.fitness ?? LS.rand(35, 70),
+    looks: opts.looks ?? LS.rand(40, 75),
+    creativity: opts.creativity ?? LS.rand(35, 70),
+    discipline: opts.discipline ?? LS.rand(35, 70),
+
+    health: 92,
+    happiness: 70,
+    stress: 12,
+    confidence: 45,
+    reputation: 50,
+    fame: 0,
+    karma: 50,
+
+    money: LS.rand(0, 40),
+    income: 0,
+    expenses: 0,
+    netWorth: 0,
+
+    education: { level: 'none', school:'', gpa: 70, degree:null, studying:null },
+    career: { id: null, title: 'Child', level: 0, performance: 50, years: 0, offers: [] },
+    sport: { id: null, name: null, rating: 20, club: null, contract: 0 },
+    housing: { id: 'parents', owned: false },
+    vehicle: { id: 'none' },
+    business: null,
+    crime: { heat: 0, record: false, sentenced: 0, notoriety: 0 },
+
+    skills,
+    inventory: [],
+    people: [mother, father],
+    partnerId: null,
+    childrenIds: [],
+    flags: {},
+    memory: [],
+    log: [],
+    queue: [],
+    achievements: [],
+    stats: {
+      jobs: 0, marriages: 0, children: 0, arrests: 0, titles: 0,
+      trips: 0, businesses: 0, peakFame: 0, peakMoney: 0, peakHappiness: 0
+    }
+  };
+};
+
+LS.makeNPC = function (opts) {
+  opts = opts || {};
+  const gender = opts.gender || LS.pick(['male','female']);
+  return {
+    id: LS.id(),
+    name: opts.name || LS.randomName(gender),
+    gender,
+    age: opts.age ?? LS.rand(16, 40),
+    role: opts.role || 'acquaintance',
+    relation: opts.relation || 'Acquaintance',
+    look: LS.newLook(gender),
+    personality: LS.pick(['warm','wry','intense','gentle','ambitious','chaotic','reserved']),
+    bond: opts.bond ?? LS.rand(20, 50),
+    attraction: opts.attraction ?? LS.rand(10, 60),
+    trust: opts.trust ?? LS.rand(30, 60),
+    rivalry: 0,
+    alive: true,
+    memories: [],
+    tags: opts.tags || []
+  };
+};
+
+LS.hasTrait = (c, t) => (c.traits || []).includes(t);
+
+LS.mod = function (c, key, delta, min, max) {
+  min = min ?? 0; max = max ?? 100;
+  c[key] = LS.clamp((c[key] || 0) + delta, min, max);
+};
+
+LS.addMoney = function (c, n, reason) {
+  c.money = Math.round(c.money + n);
+  if (c.money > c.stats.peakMoney) c.stats.peakMoney = c.money;
+  if (reason && Math.abs(n) >= 1) {
+    LS.log(c, (n >= 0 ? 'Received ' : 'Spent ') + LS.money(Math.abs(n)) + (reason ? ' — ' + reason : ''), n >= 0 ? 'good' : 'bad');
+  }
+};
+
+LS.log = function (c, text, tone) {
+  c.log.unshift({
+    id: LS.id(),
+    year: c.calYear,
+    month: c.month,
+    age: c.ageYears,
+    text, tone: tone || 'neutral'
+  });
+  if (c.log.length > 80) c.log.length = 80;
+};
+
+LS.remember = function (c, flag, value) {
+  c.flags[flag] = value === undefined ? true : value;
+};
+
+LS.flag = (c, f) => !!c.flags[f];
+
+LS.findPerson = (c, id) => c.people.find(p => p.id === id);
+
+LS.addPerson = function (c, npc) {
+  c.people.push(npc);
+  return npc;
+};
+
+LS.agePeople = function (c) {
+  c.people.forEach(p => {
+    if (!p.alive) return;
+    p.age += 1/12;
+    if (p.age > 92 && LS.chance(8)) {
+      p.alive = false;
+      LS.log(c, p.name + ' passed away at ' + Math.floor(p.age) + '.', 'bad');
+      if (c.partnerId === p.id) c.partnerId = null;
+    }
+  });
+};
+
+LS.derivedIncome = function (c) {
+  const job = LS.CAREERS[c.career.id];
+  if (!job) return 0;
+  const perf = (c.career.performance || 50) / 50;
+  const lvl = 1 + (c.career.level || 0) * 0.18;
+  let pay = job.salary * perf * lvl;
+  if (LS.hasTrait(c, 'ambitious')) pay *= 1.08;
+  if (c.business && c.business.profit) pay += c.business.profit;
+  if (c.sport && c.sport.contract) pay += c.sport.contract;
+  return Math.round(pay);
+};
+
+LS.tickNeeds = function (c) {
+  const job = LS.CAREERS[c.career.id];
+  const stressJob = job ? job.stress / 12 : 2;
+  let s = stressJob + (c.housing.id === 'parents' && c.ageYears > 24 ? 1.2 : 0);
+  if (LS.hasTrait(c, 'stoic')) s *= 0.7;
+  LS.mod(c, 'stress', s - 3 + (c.health < 40 ? 2 : 0));
+  LS.mod(c, 'happiness', (c.stress > 70 ? -2 : 0.4) + (c.career.performance > 70 ? 0.3 : 0));
+  if (c.happiness > c.stats.peakHappiness) c.stats.peakHappiness = c.happiness;
+  if (c.fame > c.stats.peakFame) c.stats.peakFame = c.fame;
+
+  // health drift
+  let hd = -0.15;
+  if (c.ageYears > 50) hd -= 0.15;
+  if (c.ageYears > 70) hd -= 0.25;
+  if (c.fitness > 70) hd += 0.15;
+  if (c.stress > 80) hd -= 0.2;
+  LS.mod(c, 'health', hd);
+
+  if (c.health <= 0) {
+    c.alive = false;
+    c.causeOfDeath = c.ageYears < 40 ? 'a sudden illness' : 'natural causes';
+  }
+};
+
+
+/* Event engine — condition matching, choices, delayed follow-ups */
+window.LS = window.LS || {};
+
+LS.Events = {
+  catalog: [],
+  register(ev) { this.catalog.push(ev); },
+  eligible(c, ev) {
+    if (ev.once && LS.flag(c, 'ev_' + ev.id)) return false;
+    if (ev.minAge != null && c.ageYears < ev.minAge) return false;
+    if (ev.maxAge != null && c.ageYears > ev.maxAge) return false;
+    if (ev.stages && !ev.stages.includes(LS.stageOf(c.ageYears))) return false;
+    if (ev.career && c.career.id !== ev.career) return false;
+    if (ev.requireFlag && !LS.flag(c, ev.requireFlag)) return false;
+    if (ev.forbidFlag && LS.flag(c, ev.forbidFlag)) return false;
+    if (ev.minMoney != null && c.money < ev.minMoney) return false;
+    if (ev.minFame != null && c.fame < ev.minFame) return false;
+    if (ev.test && !ev.test(c)) return false;
+    return true;
+  },
+  rollMonth(c) {
+    const pool = this.catalog.filter(ev => this.eligible(c, ev));
+    const fired = [];
+    // always process delayed queue first
+    const due = c.queue.filter(q => q.year < c.calYear || (q.year === c.calYear && q.month <= c.month));
+    c.queue = c.queue.filter(q => !due.includes(q));
+    due.forEach(q => fired.push({ type:'queued', data:q }));
+
+    pool.forEach(ev => {
+      const p = typeof ev.chance === 'function' ? ev.chance(c) : (ev.chance || 3);
+      if (LS.chance(p)) fired.push({ type:'event', data:ev });
+    });
+    return fired;
+  },
+  schedule(c, payload, months) {
+    let m = c.month + months;
+    let y = c.calYear;
+    while (m > 11) { m -= 12; y++; }
+    c.queue.push(Object.assign({ year:y, month:m }, payload));
+  }
+};
+
+function ev(def) { LS.Events.register(def); }
+
+/* ---------- childhood ---------- */
+ev({
+  id:'first_friend', once:true, minAge:5, maxAge:10, chance:55,
+  title:'A friend at the gate',
+  text:'Someone sits next to you at lunch and offers half an orange. They ask if you want to play after school.',
+  scene:'park',
+  choices:[
+    { label:'Say yes. Race them to the fence.', apply(c){
+      const n = LS.addPerson(c, LS.makeNPC({ gender: LS.pick(['male','female']), age:c.ageYears, role:'friend', relation:'Best Friend', bond:62 }));
+      LS.mod(c,'happiness',8); LS.mod(c,'charisma',2);
+      LS.remember(c,'childhood_friend', n.id);
+      return n.name + ' becomes a fixture of your afternoons.';
+    }},
+    { label:'Keep to yourself.', apply(c){
+      LS.mod(c,'confidence',-3); LS.remember(c,'loner_kid');
+      return 'You eat the orange alone. The habit of solitude starts early.';
+    }}
+  ]
+});
+
+ev({
+  id:'bully', minAge:7, maxAge:14, chance:10,
+  title:'The courtyard',
+  text:'A taller kid knocks your bag into the dirt and waits to see what you do.',
+  scene:'park',
+  choices:[
+    { label:'Stand up to them.', apply(c){
+      if (c.fitness + (LS.hasTrait(c,'reckless')?15:0) > 50) {
+        LS.mod(c,'confidence',8); LS.mod(c,'reputation',4); LS.mod(c,'fitness',2);
+        return 'They back off. Word travels that you do not fold.';
+      }
+      LS.mod(c,'health',-6); LS.mod(c,'happiness',-8); LS.mod(c,'confidence',-4);
+      return 'You catch a fist and a week of bruises. Courage is not the same as winning.';
+    }},
+    { label:'Walk away and tell a teacher.', apply(c){
+      LS.mod(c,'stress',4); LS.mod(c,'karma',4);
+      return 'The teasing dulls. Some kids call you a snitch. You sleep better anyway.';
+    }},
+    { label:'Make a joke of it.', apply(c){
+      LS.mod(c,'charisma',3); LS.mod(c,'happiness',2);
+      return 'Laughter takes the sting out. The moment passes.';
+    }}
+  ]
+});
+
+ev({
+  id:'school_play', minAge:8, maxAge:16, chance:8,
+  title:'The school play',
+  text:'Auditions are pinned to the noticeboard. Your teacher thinks you should try.',
+  choices:[
+    { label:'Audition.', apply(c){
+      const score = (c.charisma + c.creativity)/2 + (LS.hasTrait(c,'creative')?10:0);
+      LS.mod(c,'skills',0);
+      c.skills.art = LS.clamp(c.skills.art+4,0,100);
+      if (score > 55) { LS.mod(c,'confidence',8); LS.mod(c,'fame',2); LS.remember(c,'stage_kid'); return 'You land a speaking part. The lights feel like a second home.'; }
+      LS.mod(c,'confidence',-2);
+      return 'You freeze on the first line. The role goes to someone else.';
+    }},
+    { label:'Help backstage.', apply(c){ c.skills.art+=2; LS.mod(c,'happiness',3); return 'You learn the quiet machinery of a show.'; }},
+    { label:'Skip it.', apply(c){ return 'The auditorium glows without you.'; }}
+  ]
+});
+
+ev({
+  id:'sports_carnival', minAge:9, maxAge:17, chance:12,
+  title:'Sports carnival',
+  text:'The oval is marked in chalk. Your event is called over the loudspeaker.',
+  scene:'stadium',
+  special:'minigame',
+  minigame:'timing',
+  minigameCtx:{ title:'Sports Carnival', hint:'Hit the green zone as the needle passes.' },
+  afterMinigame(c, score){
+    c.skills.athletics = LS.clamp(c.skills.athletics + Math.round(score/20),0,100);
+    LS.mod(c,'fitness', score>60?4:1);
+    if (score >= 80) { LS.mod(c,'fame',3); LS.mod(c,'confidence',8); LS.remember(c,'carnival_win'); return 'You take the ribbon. The stand makes a noise you will remember.'; }
+    if (score >= 50) { LS.mod(c,'confidence',3); return 'A solid finish. Not glory — competence.'; }
+    LS.mod(c,'happiness',-3); return 'You fade in the last twenty metres. Dust and disappointment.';
+  },
+  choices:[{ label:'Compete', apply(){ return '__minigame__'; }}]
+});
+
+/* ---------- teen ---------- */
+ev({
+  id:'first_crush', once:true, stages:['teen'], chance:40,
+  title:'Someone looks back',
+  text:'You keep noticing the same person in the corridor. Today they wait as if they expected you.',
+  scene:'park',
+  choices:[
+    { label:'Ask them to walk home.', apply(c){
+      const n = LS.addPerson(c, LS.makeNPC({
+        gender: c.gender==='male'?'female':'male',
+        age: c.ageYears,
+        role:'romance', relation:'Crush', bond:40, attraction:70
+      }));
+      LS.remember(c,'first_crush', n.id);
+      LS.mod(c,'happiness',10); LS.mod(c,'confidence',4);
+      return 'Their name is ' + n.name.split(' ')[0] + '. The walk takes the long way on purpose.';
+    }},
+    { label:'Say nothing.', apply(c){
+      LS.mod(c,'happiness',-2); LS.remember(c,'let_crush_go');
+      return 'The moment closes. You will invent versions of it later.';
+    }}
+  ]
+});
+
+ev({
+  id:'house_party', stages:['teen'], chance:14,
+  title:'A house with no adults',
+  text:'Music through the floor. Someone presses a drink into your hand. A dare is circulating.',
+  scene:'night',
+  choices:[
+    { label:'Stay sharp. Watch the room.', apply(c){
+      LS.mod(c,'discipline',2); LS.mod(c,'skills',0);
+      c.skills.social += 3;
+      return 'You leave with your keys and a few new numbers.';
+    }},
+    { label:'Lean into the night.', apply(c){
+      LS.mod(c,'happiness',8); LS.mod(c,'stress',-6); LS.mod(c,'reputation', LS.hasTrait(c,'reckless')?4:-2);
+      if (LS.chance(25)) { LS.mod(c,'health',-8); return 'You overdo it. Morning arrives like an argument.'; }
+      return 'You dance badly and laugh properly.';
+    }},
+    { label:'Go home early.', apply(c){
+      LS.mod(c,'happiness',-2); LS.mod(c,'discipline',2);
+      return 'The quiet house feels larger than the party.';
+    }}
+  ]
+});
+
+ev({
+  id:'part_time', once:true, minAge:15, maxAge:18, chance:35,
+  title:'A card in the window',
+  text:'The café needs weekend hands. The pay is ordinary. The independence is not.',
+  choices:[
+    { label:'Take the job.', apply(c){
+      c.career.id = 'hospitality';
+      c.career.title = 'Café All-rounder';
+      c.career.performance = 55;
+      c.stats.jobs++;
+      LS.addMoney(c, 400, 'first pay');
+      LS.mod(c,'confidence',5);
+      return 'You burn one sandwich and learn the rest. Money of your own changes the air.';
+    }},
+    { label:'Focus on school.', apply(c){
+      c.education.gpa = LS.clamp(c.education.gpa+4,0,100);
+      return 'Saturdays stay free. Your marks notice.';
+    }}
+  ]
+});
+
+ev({
+  id:'exam_year', once:true, minAge:17, maxAge:18, chance:80,
+  title:'Final exams',
+  text:'The hall smells of paper and nerves. Three hours. A future hiding in the margins.',
+  special:'minigame', minigame:'memory',
+  minigameCtx:{ title:'Final Exams', hint:'Remember the sequence. Your marks depend on it.' },
+  afterMinigame(c, score){
+    const bonus = Math.round((score-50)/8) + (LS.hasTrait(c,'bookish')?6:0) + Math.round(c.intel/20);
+    c.education.gpa = LS.clamp(c.education.gpa + bonus, 20, 100);
+    if (score>=75){ LS.remember(c,'honours'); LS.mod(c,'confidence',8); return 'The paper bends toward you. Offers will follow.'; }
+    if (score>=45){ return 'A respectable result. Doors stay open, if not wide.'; }
+    LS.mod(c,'confidence',-5); return 'You leave questions blank. The future narrows a little.';
+  },
+  choices:[{ label:'Sit the exam', apply(){ return '__minigame__'; }}]
+});
+
+/* ---------- adult life ---------- */
+ev({
+  id:'job_interview', minAge:18, maxAge:45, chance:7,
+  test:(c)=> !c.career.id || c.career.id==='hospitality' || c.career.id==='retail' || c.career.id==='student',
+  title:'An interview',
+  text:'A glass office, a too-cold room. Two people with a printout of your life.',
+  scene:'office',
+  special:'minigame', minigame:'dialogue',
+  minigameCtx:{ title:'The Interview', hint:'Choose answers that fit the room.' },
+  afterMinigame(c, score){
+    if (score>=65){
+      const opts = ['office','tech','sales','accountant'].filter(id => LS.CAREERS[id].minAge <= c.ageYears);
+      const job = LS.CAREERS[LS.pick(opts)];
+      c.career.id = job.id;
+      c.career.title = job.name;
+      c.career.level = 0;
+      c.career.performance = 60;
+      c.stats.jobs++;
+      LS.mod(c,'confidence',8);
+      return 'They call the next afternoon. You start as a ' + job.name + '.';
+    }
+    LS.mod(c,'confidence',-3);
+    return 'A polite email. They went with another candidate.';
+  },
+  choices:[{ label:'Take the interview', apply(){ return '__minigame__'; }}]
+});
+
+ev({
+  id:'promotion', minAge:20, chance:6,
+  test:(c)=> c.career.id && c.career.id!=='retired' && c.career.performance>68 && c.career.id!=='athlete',
+  title:'A conversation upstairs',
+  text:'Your manager closes the door. They talk about "the next step" as if it were weather.',
+  scene:'office',
+  choices:[
+    { label:'Accept the promotion.', apply(c){
+      c.career.level++;
+      c.career.title = (c.career.level>=2?'Senior ':'') + (LS.CAREERS[c.career.id]?.name || c.career.title);
+      LS.mod(c,'stress',8); LS.mod(c,'confidence',6); LS.mod(c,'reputation',5);
+      return 'A new title. A heavier inbox. The salary follows.';
+    }},
+    { label:'Ask for money, not title.', apply(c){
+      LS.addMoney(c, 4000, 'signing bump');
+      LS.mod(c,'happiness',4);
+      return 'They grimace, then agree. You stay where you are, better paid.';
+    }},
+    { label:'Decline. Protect your hours.', apply(c){
+      LS.mod(c,'happiness',5); LS.mod(c,'stress',-6); c.career.performance -= 4;
+      return 'They remember that you said no. So do you.';
+    }}
+  ]
+});
+
+ev({
+  id:'burnout', minAge:24, chance:5,
+  test:(c)=> c.stress>75 && c.career.id && c.career.id!=='retired',
+  title:'The ceiling at 2am',
+  text:'Work has colonised sleep. Your hands shake on the commute for no medical reason.',
+  scene:'home',
+  choices:[
+    { label:'Take leave and see someone.', apply(c){
+      LS.mod(c,'stress',-22); LS.mod(c,'health',6); LS.addMoney(c,-800,'time off');
+      return 'Two weeks of ordinary mornings. You remember you have a body.';
+    }},
+    { label:'Push through.', apply(c){
+      LS.mod(c,'health',-10); LS.mod(c,'happiness',-8); c.career.performance += 3;
+      if (LS.chance(20)) { LS.mod(c,'health',-15); return 'Your body files a complaint. A week in bed follows.'; }
+      return 'The work gets done. Something quieter is spent instead.';
+    }}
+  ]
+});
+
+ev({
+  id:'meet_partner', minAge:18, maxAge:55, chance:8,
+  test:(c)=> !c.partnerId,
+  title:'A table for two that was not planned',
+  text:'A friend cancels. The person across from you does not. Conversation finds a current.',
+  scene:'night',
+  choices:[
+    { label:'Ask to see them again.', apply(c){
+      const n = LS.addPerson(c, LS.makeNPC({
+        gender: LS.pick(['male','female']),
+        age: LS.clamp(c.ageYears + LS.rand(-4,4), 18, 70),
+        role:'romance', relation:'Dating', bond:48, attraction: LS.rand(50,85)
+      }));
+      c.partnerId = n.id;
+      LS.mod(c,'happiness',12);
+      return n.name + ' texts first the next day. A small, precise kindness.';
+    }},
+    { label:'Keep it to one evening.', apply(c){
+      LS.mod(c,'happiness',4);
+      return 'You walk home lighter and unattached.';
+    }}
+  ]
+});
+
+ev({
+  id:'relationship_talk', minAge:19, chance:9,
+  test:(c)=> !!c.partnerId,
+  title:'The talk on the balcony',
+  text:'They fold a napkin twice before speaking. "What are we doing?"',
+  scene:'home',
+  choices:[
+    { label:'Ask them to move closer to you.', apply(c){
+      const p = LS.findPerson(c, c.partnerId);
+      if (!p) return 'The question hangs in an empty room.';
+      p.bond = LS.clamp(p.bond+12,0,100); p.relation = p.bond>70 ? 'Partner' : 'Dating';
+      LS.mod(c,'happiness',6); LS.mod(c,'stress',-3);
+      return p.name.split(' ')[0] + ' looks relieved. The future gets a little more specific.';
+    }},
+    { label:'Keep it undefined.', apply(c){
+      const p = LS.findPerson(c, c.partnerId);
+      if (p) p.trust -= 8;
+      LS.mod(c,'stress',3);
+      return 'They nod. Something cools by a degree.';
+    }},
+    { label:'End it gently.', apply(c){
+      const p = LS.findPerson(c, c.partnerId);
+      if (p) { p.relation = 'Ex'; p.bond = Math.max(10, p.bond-20); }
+      c.partnerId = null;
+      LS.mod(c,'happiness',-10); LS.mod(c,'stress',6);
+      return 'Kindness does not make it painless.';
+    }}
+  ]
+});
+
+ev({
+  id:'marriage_offer', minAge:22, chance:6,
+  test:(c)=> {
+    const p = c.partnerId && LS.findPerson(c, c.partnerId);
+    return p && p.bond > 72 && !LS.flag(c,'married');
+  },
+  title:'A ring, or the idea of one',
+  text:'They are worse at hiding nerves than they think. The question arrives without theatre.',
+  scene:'park',
+  choices:[
+    { label:'Yes.', apply(c){
+      const p = LS.findPerson(c, c.partnerId);
+      p.relation = 'Spouse'; p.bond = LS.clamp(p.bond+10,0,100);
+      LS.remember(c,'married'); c.stats.marriages++;
+      LS.mod(c,'happiness',16); LS.mod(c,'stress',-4);
+      LS.addMoney(c, -LS.rand(2000,8000), 'wedding');
+      return 'You marry ' + p.name + '. The photos are slightly out of focus and perfect.';
+    }},
+    { label:'Not yet.', apply(c){
+      const p = LS.findPerson(c, c.partnerId);
+      if (p) p.trust -= 6;
+      return 'They say they understand. Both of you hear the pause.';
+    }}
+  ]
+});
+
+ev({
+  id:'child_question', minAge:24, maxAge:45, chance:6,
+  test:(c)=> LS.flag(c,'married') && !!c.partnerId && c.childrenIds.length < 3,
+  title:'A conversation about later',
+  text:'A vacant room in the house starts to feel like an argument. They ask if you want a child.',
+  scene:'home',
+  choices:[
+    { label:'Yes. Start trying.', apply(c){
+      LS.remember(c,'trying_child');
+      LS.Events.schedule(c, { kind:'birth' }, LS.rand(10,16));
+      LS.mod(c,'happiness',8);
+      return 'The decision settles over the house like weather.';
+    }},
+    { label:'Not now.', apply(c){
+      const p = LS.findPerson(c, c.partnerId);
+      if (p) p.bond -= 4;
+      return 'You buy time. Time has a way of spending itself.';
+    }}
+  ]
+});
+
+ev({
+  id:'buy_house_prompt', minAge:24, chance:5,
+  test:(c)=> c.money > 90000 && c.housing.id!=='house' && c.housing.id!=='luxury',
+  title:'An inspection on a Saturday',
+  text:'Empty rooms echo. The agent talks about light. You imagine a table that is yours.',
+  choices:[
+    { label:'Put in an offer.', apply(c){
+      const h = LS.HOUSING.find(x=>x.id==='apt') || LS.HOUSING[3];
+      if (c.money < 80000) return 'The bank declines. The rooms stay imaginary.';
+      LS.addMoney(c, -Math.min(c.money*0.2, 120000), 'deposit');
+      c.housing.id = c.money > 200000 ? 'house' : 'apt';
+      c.housing.owned = true;
+      LS.mod(c,'happiness',10); LS.mod(c,'stress',8);
+      return 'Keys in your palm. The lock sticks on the first try.';
+    }},
+    { label:'Walk away.', apply(c){ return 'You go home to rooms that do not belong to you.'; }}
+  ]
+});
+
+ev({
+  id:'holiday_offer', minAge:18, chance:6,
+  test:(c)=> c.money>3000,
+  title:'A cheap fare, a loud idea',
+  text:'Someone sends a link at midnight. Two seats left. A city you have only seen in other people\'s photos.',
+  choices:[
+    { label:'Book it.', apply(c){
+      const d = LS.pick(LS.DESTINATIONS);
+      LS.addMoney(c, -d.cost, d.name);
+      LS.mod(c,'happiness', d.happy); LS.mod(c,'stress',-10);
+      c.stats.trips++;
+      LS.remember(c,'last_trip', d.id);
+      if (LS.chance(30) && !c.partnerId) {
+        const n = LS.addPerson(c, LS.makeNPC({ age:c.ageYears, role:'romance', relation:'Travel Flirt', bond:30, attraction:70 }));
+        return 'You go to ' + d.name + '. You meet ' + n.name.split(' ')[0] + ' on a late ferry. The city keeps its promise.';
+      }
+      return 'You go to ' + d.name + '. The days feel longer in the right way.';
+    }},
+    { label:'Stay. Save.', apply(c){ LS.mod(c,'discipline',2); return 'The fare disappears. So does the version of the month that contained it.'; }}
+  ]
+});
+
+ev({
+  id:'viral', minAge:16, chance:4,
+  test:(c)=> c.career.id==='influencer' || c.fame>8 || LS.hasTrait(c,'creative'),
+  title:'Something catches',
+  text:'A clip you barely remember making starts arriving in other people\'s mouths.',
+  choices:[
+    { label:'Lean into it.', apply(c){
+      LS.mod(c,'fame', LS.rand(8,18)); LS.mod(c,'money',0);
+      LS.addMoney(c, LS.rand(500,4000), 'sudden audience');
+      LS.mod(c,'stress',6);
+      return 'Brands appear in the inbox. So do strangers with opinions.';
+    }},
+    { label:'Let it pass.', apply(c){
+      LS.mod(c,'fame',3);
+      return 'The spike fades. You keep your mornings.';
+    }}
+  ]
+});
+
+ev({
+  id:'crime_tempt', minAge:16, maxAge:40, chance:4,
+  test:(c)=> c.money<8000 || c.career.id==='criminal' || LS.hasTrait(c,'reckless'),
+  title:'A quiet proposition',
+  text:'Someone you half-know talks around a job that is not a job. Cash. No invoice.',
+  scene:'night',
+  choices:[
+    { label:'Hear them out.', apply(c){
+      c.crime.heat += 12; c.crime.notoriety += 5;
+      LS.addMoney(c, LS.rand(800,4000), 'off-books');
+      LS.mod(c,'karma',-8); LS.mod(c,'stress',8);
+      if (LS.chance(c.crime.heat)) {
+        c.crime.record = true; c.stats.arrests++;
+        LS.mod(c,'reputation',-15);
+        return 'The money is real. So are the lights on the wall later that month.';
+      }
+      return 'You take the envelope. Sleep changes shape.';
+    }},
+    { label:'Walk away.', apply(c){
+      LS.mod(c,'karma',4);
+      return 'They shrug. The city has other takers.';
+    }}
+  ]
+});
+
+ev({
+  id:'court', minAge:18, chance:20,
+  requireFlag:'awaiting_court',
+  once:false,
+  title:'A room with a crest',
+  text:'Your name is read as if it belonged to a file. It does.',
+  scene:'court',
+  choices:[
+    { label:'Plead and keep it short.', apply(c){
+      c.flags.awaiting_court = false;
+      c.crime.sentenced = LS.chance(40) ? 1 : 0;
+      LS.mod(c,'reputation',-8);
+      if (c.crime.sentenced) {
+        c.career.id = null; c.career.title = 'In custody';
+        LS.Events.schedule(c, { kind:'release' }, 12);
+        return 'A year, they say. The door is heavier than it looks.';
+      }
+      return 'A fine, a record, a warning. The street is still there.';
+    }},
+    { label:'Fight it.', apply(c){
+      c.flags.awaiting_court = false;
+      const win = (c.charisma + (c.skills.law||0)) > 90 && LS.chance(50);
+      if (win) { LS.mod(c,'reputation',4); return 'The case folds. You walk out lighter and poorer in time.'; }
+      c.crime.record = true; LS.addMoney(c, -LS.rand(2000,8000), 'costs');
+      LS.mod(c,'reputation',-12);
+      return 'You lose. The record keeps your name.';
+    }}
+  ]
+});
+
+ev({
+  id:'health_scare', minAge:30, chance:5,
+  test:(c)=> c.health<55 || c.ageYears>55 || c.stress>80,
+  title:'A waiting room',
+  text:'Fluorescent light. A magazine from last winter. Your name, mispronounced.',
+  scene:'hospital',
+  choices:[
+    { label:'Follow the treatment.', apply(c){
+      LS.addMoney(c, -LS.rand(400,2000), 'care');
+      LS.mod(c,'health',14); LS.mod(c,'stress',-6);
+      return 'Slow repair. You cancel a habit that was killing time and other things.';
+    }},
+    { label:'Ignore it.', apply(c){
+      LS.mod(c,'health',-12);
+      if (c.health<15){ c.alive=false; c.causeOfDeath='neglecting a treatable condition'; return 'The body does not negotiate forever.'; }
+      return 'You tell yourself it was nothing. Your sleep disagrees.';
+    }}
+  ]
+});
+
+ev({
+  id:'parent_aging', minAge:30, chance:7,
+  test:(c)=> c.people.some(p=>p.role==='parent' && p.alive && p.age>68),
+  title:'A call in the afternoon',
+  text:'A parent sounds smaller on the phone. They need help with something they would have done in an hour, once.',
+  scene:'home',
+  choices:[
+    { label:'Go. Stay a week.', apply(c){
+      LS.mod(c,'happiness',4); LS.mod(c,'stress',5); LS.mod(c,'karma',6);
+      const p = c.people.find(x=>x.role==='parent' && x.alive);
+      if (p) p.bond = LS.clamp(p.bond+8,0,100);
+      return 'You rearrange work. The house still smells like your childhood, faintly.';
+    }},
+    { label:'Send money instead.', apply(c){
+      LS.addMoney(c, -1500, 'support');
+      LS.mod(c,'karma',2);
+      return 'Useful. Incomplete.';
+    }}
+  ]
+});
+
+ev({
+  id:'legacy_letter', minAge:70, chance:10,
+  title:'What remains',
+  text:'A solicitor asks who should speak for you if the day comes. The question is administrative and not.',
+  choices:[
+    { label:'Write it down properly.', apply(c){
+      LS.remember(c,'will'); LS.mod(c,'happiness',4);
+      return 'You name people. You leave more than money.';
+    }},
+    { label:'Not today.', apply(c){ return 'The form stays in a drawer.'; }}
+  ]
+});
+
+ev({
+  id:'old_friend', minAge:28, chance:5,
+  test:(c)=> LS.flag(c,'childhood_friend'),
+  title:'A name you have not said aloud',
+  text:'A message from a number you almost deleted. They will be in town for two days.',
+  choices:[
+    { label:'Meet them.', apply(c){
+      LS.mod(c,'happiness',10);
+      const id = c.flags.childhood_friend;
+      const p = LS.findPerson(c, id);
+      if (p) { p.bond = LS.clamp(p.bond+15,0,100); p.relation = 'Old Friend'; }
+      return 'The years collapse in the first ten minutes, then politely return.';
+    }},
+    { label:'Let it pass.', apply(c){ return 'You type a reply and do not send it.'; }}
+  ]
+});
+
+ev({
+  id:'investment', minAge:22, chance:5,
+  test:(c)=> c.money>15000,
+  title:'A tip that sounds like a secret',
+  text:'Someone at work mentions a "sure thing" with the confidence of people who have not yet been ruined.',
+  choices:[
+    { label:'Put money in.', apply(c){
+      const stake = Math.min(c.money*0.2, 25000);
+      if (LS.chance(LS.hasTrait(c,'reckless')?45:55)) {
+        LS.addMoney(c, Math.round(stake*LS.rand(20,80)/100), 'investment');
+        return 'It works. You do not tell anyone how close you were to being the cautionary tale.';
+      }
+      LS.addMoney(c, -Math.round(stake), 'bad investment');
+      return 'The sure thing becomes a story you tell as a joke.';
+    }},
+    { label:'Keep the cash.', apply(c){ return 'Boring capital survives.'; }}
+  ]
+});
+
+ev({
+  id:'workplace_conflict', minAge:19, chance:6,
+  test:(c)=> !!c.career.id && c.career.id!=='retired',
+  title:'A meeting that should have been an email',
+  text:'A colleague takes credit in a room that mattered. They smile at you when it lands.',
+  scene:'office',
+  choices:[
+    { label:'Correct the record, calmly.', apply(c){
+      LS.mod(c,'reputation',4); LS.mod(c,'stress',4);
+      c.career.performance += 2;
+      return 'A few people notice. The colleague notices more.';
+    }},
+    { label:'Let it go.', apply(c){
+      LS.mod(c,'stress',6); c.career.performance -= 2;
+      return 'The smile stays. So does the pattern.';
+    }},
+    { label:'Take it outside the building.', apply(c){
+      LS.mod(c,'reputation',-6);
+      if (LS.chance(30)) { c.career.performance -= 10; return 'HR learns your name the wrong way.'; }
+      return 'It feels like justice for an afternoon.';
+    }}
+  ]
+});
+
+
+/* Reusable minigame engine. Returns 0–100 performance. */
+window.LS = window.LS || {};
+
+LS.Minigames = {
+  play(type, ctx, done) {
+    const fn = this[type] || this.timing;
+    fn.call(this, ctx || {}, done);
+  },
+
+  _shell(title, hint) {
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    ov.innerHTML = `<div class="mg">
+      <div class="mg-hud"><span>${title || 'Challenge'}</span><span id="mg-score">Ready</span></div>
+      <h2>${title || 'Challenge'}</h2>
+      <p class="lede">${hint || ''}</p>
+      <div class="mg-canvas-wrap" id="mg-stage"></div>
+      <div class="timer-bar"><i id="mg-timer"></i></div>
+      <p class="kb" id="mg-kb">Click / tap when ready.</p>
+    </div>`;
+    return {
+      stage: document.getElementById('mg-stage'),
+      scoreEl: document.getElementById('mg-score'),
+      timer: document.getElementById('mg-timer'),
+      kb: document.getElementById('mg-kb')
+    };
+  },
+
+  _finish(score, done) {
+    score = LS.clamp(Math.round(score), 0, 100);
+    const ov = document.getElementById('overlay');
+    const label = score>=96?'Exceptional':score>=81?'Excellent':score>=61?'Good':score>=41?'Average':score>=21?'Poor':'Disastrous';
+    ov.innerHTML = `<div class="mg center">
+      <h2>${label}</h2>
+      <p class="lede">Performance: <b class="gold">${score}</b> / 100</p>
+      <button class="btn primary" id="mg-ok">Continue</button>
+    </div>`;
+    document.getElementById('mg-ok').onclick = () => { ov.className='overlay'; ov.innerHTML=''; done(score); };
+  },
+
+  timing(ctx, done) {
+    const ui = this._shell(ctx.title || 'Timing', ctx.hint || 'Click when the needle is inside the green zone. Three attempts.');
+    const track = document.createElement('div'); track.className = 'timing-track';
+    const zone = document.createElement('div'); zone.className = 'timing-zone';
+    const needle = document.createElement('div'); needle.className = 'timing-needle';
+    const z0 = 38 + LS.rand(0, 20);
+    const zW = 14;
+    zone.style.left = z0 + '%'; zone.style.width = zW + '%';
+    track.append(zone, needle);
+    ui.stage.appendChild(track);
+    ui.kb.textContent = 'Click anywhere to stop the needle.';
+    let x = 0, dir = 1, tries = 0, acc = 0, running = true;
+    const speed = 1.6 + Math.random();
+    let last = performance.now();
+    const loop = (t) => {
+      if (!running) return;
+      const dt = Math.min(32, t - last); last = t;
+      x += dir * speed * dt * 0.08;
+      if (x >= 100) { x = 100; dir = -1; }
+      if (x <= 0) { x = 0; dir = 1; }
+      needle.style.left = x + '%';
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    const click = () => {
+      if (!running) return;
+      tries++;
+      const mid = z0 + zW/2;
+      const dist = Math.abs(x - mid);
+      const hit = dist <= zW/2 + 1;
+      const piece = hit ? LS.clamp(100 - dist * 6, 50, 100) : LS.clamp(40 - dist, 0, 40);
+      acc += piece;
+      ui.scoreEl.textContent = 'Attempt ' + tries + ' · ' + Math.round(piece);
+      if (tries >= 3) {
+        running = false;
+        ui.stage.removeEventListener('click', click);
+        setTimeout(() => this._finish(acc/3, done), 280);
+      }
+    };
+    ui.stage.style.cursor = 'pointer';
+    ui.stage.addEventListener('click', click);
+  },
+
+  memory(ctx, done) {
+    const ui = this._shell(ctx.title || 'Memory', ctx.hint || 'Watch the sequence, then repeat it.');
+    const colors = ['#d4a853','#3dbebf','#e07a8a','#5ad48a'];
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;height:100%;padding:16px;';
+    const cells = [];
+    for (let i=0;i<4;i++){
+      const b = document.createElement('button');
+      b.style.cssText = `border:0;border-radius:14px;background:${colors[i]};opacity:.35;cursor:pointer;`;
+      b.dataset.i = i;
+      grid.appendChild(b);
+      cells.push(b);
+    }
+    ui.stage.appendChild(grid);
+    const seq = [];
+    const len = 4;
+    for (let i=0;i<len;i++) seq.push(LS.rand(0,3));
+    let input = [];
+    let locked = true;
+    const flash = async () => {
+      locked = true; ui.kb.textContent = 'Watch…';
+      for (const i of seq) {
+        cells[i].style.opacity = '1';
+        await new Promise(r => setTimeout(r, 420));
+        cells[i].style.opacity = '.35';
+        await new Promise(r => setTimeout(r, 160));
+      }
+      locked = false; ui.kb.textContent = 'Repeat the sequence.';
+    };
+    cells.forEach(b => b.onclick = () => {
+      if (locked) return;
+      const i = +b.dataset.i;
+      b.style.opacity = '1';
+      setTimeout(()=>b.style.opacity='.35', 180);
+      input.push(i);
+      if (input.length === seq.length) {
+        let ok = 0;
+        input.forEach((v,idx)=>{ if (v===seq[idx]) ok++; });
+        this._finish(Math.round((ok/seq.length)*100), done);
+      }
+    });
+    setTimeout(flash, 400);
+  },
+
+  dialogue(ctx, done) {
+    const ui = this._shell(ctx.title || 'Conversation', ctx.hint || 'Read the room. Better answers score higher.');
+    ui.stage.style.height = 'auto';
+    ui.stage.style.minHeight = '200px';
+    ui.stage.style.padding = '16px';
+    const rounds = [
+      { q:'Why this path?',
+        a:[
+          { t:'I want the work itself, not just the title.', s:82 },
+          { t:'The money is honest and the hours are fine.', s:55 },
+          { t:'I do not know. I need something.', s:28 }
+        ]},
+      { q:'Tell us about a failure.',
+        a:[
+          { t:'I missed a deadline, owned it, and changed how I plan.', s:88 },
+          { t:'I do not really fail.', s:22 },
+          { t:'People were the problem.', s:35 }
+        ]},
+      { q:'Where do you want to be in five years?',
+        a:[
+          { t:'Better at the craft. Trusted with harder rooms.', s:80 },
+          { t:'Running this place.', s:60 },
+          { t:'Anywhere but here, probably.', s:18 }
+        ]}
+    ];
+    let i = 0, acc = 0;
+    const render = () => {
+      const r = rounds[i];
+      ui.stage.innerHTML = `<p class="speaker">They ask</p><p style="margin:8px 0 12px">${r.q}</p>`;
+      r.a.forEach(opt => {
+        const b = document.createElement('button');
+        b.className = 'choice';
+        b.textContent = opt.t;
+        b.onclick = () => {
+          acc += opt.s;
+          i++;
+          if (i >= rounds.length) this._finish(acc/rounds.length, done);
+          else render();
+        };
+        ui.stage.appendChild(b);
+      });
+    };
+    render();
+  },
+
+  office(ctx, done) {
+    const ui = this._shell(ctx.title || 'Inbox', ctx.hint || 'Handle the highest-priority work first. You have 20 seconds.');
+    ui.stage.style.padding = '12px';
+    ui.stage.style.overflow = 'auto';
+    const items = [
+      { pri:'high', t:'Client contract expires today', ok:true },
+      { pri:'low', t:'Office cake collection', ok:false },
+      { pri:'high', t:'Payroll discrepancy', ok:true },
+      { pri:'med', t:'Team lunch RSVP', ok:false },
+      { pri:'med', t:'Quarterly slide deck', ok:true },
+      { pri:'low', t:'New mug designs', ok:false }
+    ].sort(()=>Math.random()-0.5);
+    let picked = 0, correct = 0, started = Date.now();
+    items.forEach(it => {
+      const d = document.createElement('div');
+      d.className = 'inbox-item';
+      d.innerHTML = `<div class="pri ${it.pri}">${it.pri}</div>${it.t}`;
+      d.onclick = () => {
+        if (d.dataset.done) return;
+        d.dataset.done = '1';
+        picked++;
+        if (it.ok) { correct++; d.style.borderColor = 'var(--ok)'; }
+        else d.style.borderColor = 'var(--danger)';
+        if (picked >= 3) finish();
+      };
+      ui.stage.appendChild(d);
+    });
+    let dead = false;
+    const tick = () => {
+      if (dead) return;
+      const left = 1 - (Date.now()-started)/20000;
+      ui.timer.style.width = LS.clamp(left,0,1)*100 + '%';
+      if (left <= 0) finish();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    const finish = () => {
+      if (dead) return; dead = true;
+      const timeBonus = LS.clamp(30 - (Date.now()-started)/400, 0, 25);
+      this._finish(correct*28 + timeBonus, done);
+    };
+  },
+
+  sales(ctx, done) {
+    const ui = this._shell(ctx.title || 'The Close', 'Read the customer. Push too hard and they leave.');
+    ui.stage.style.padding = '16px';
+    let warmth = 50;
+    const status = document.createElement('p');
+    status.className = 'lede';
+    const bar = document.createElement('div');
+    bar.className = 'bar teal';
+    bar.innerHTML = '<i id="warm"></i>';
+    ui.stage.append(status, bar);
+    const set = () => {
+      status.textContent = warmth>70 ? 'They are leaning in.' : warmth<35 ? 'They are halfway to the door.' : 'They are listening.';
+      document.getElementById('warm').style.width = warmth+'%';
+    };
+    set();
+    const opts = [
+      { t:'Ask what success looks like for them.', d:18 },
+      { t:'Drop the price immediately.', d:-8 },
+      { t:'Tell a precise story of a similar client.', d:14 },
+      { t:'Talk over their objection.', d:-16 },
+      { t:'Offer a smaller first step.', d:12 },
+      { t:'Name a deadline that is real.', d:8 }
+    ];
+    let steps = 0;
+    const box = document.createElement('div');
+    ui.stage.appendChild(box);
+    const draw = () => {
+      box.innerHTML = '';
+      LS.pick([opts, opts]) && opts.slice().sort(()=>Math.random()-0.5).slice(0,3).forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'choice';
+        b.textContent = o.t;
+        b.onclick = () => {
+          warmth = LS.clamp(warmth + o.d + LS.rand(-3,3), 0, 100);
+          steps++;
+          set();
+          if (steps>=4 || warmth>=90 || warmth<=10) this._finish(warmth, done);
+          else draw();
+        };
+        box.appendChild(b);
+      });
+    };
+    draw();
+  },
+
+  doctor(ctx, done) {
+    const ui = this._shell(ctx.title || 'Triage', 'Choose the safest next step.');
+    ui.stage.style.padding = '16px';
+    const cases = [
+      { q:'Fever, stiff neck, photophobia.', a:[
+        { t:'Urgent investigation for meningitis.', s:92 },
+        { t:'Send home with paracetamol.', s:10 },
+        { t:'Book routine GP in a week.', s:18 }
+      ]},
+      { q:'Chest tightness after climbing stairs, sweating.', a:[
+        { t:'Treat as possible cardiac event.', s:90 },
+        { t:'Likely anxiety — reassure and discharge.', s:20 },
+        { t:'Suggest a long run to test it.', s:5 }
+      ]},
+      { q:'Toddler with rash after new food, noisy breathing.', a:[
+        { t:'Manage as evolving allergy / airway risk.', s:88 },
+        { t:'Cream and a sticker.', s:15 },
+        { t:'Wait and see overnight.', s:25 }
+      ]}
+    ];
+    let i=0, acc=0;
+    const render = () => {
+      const c = cases[i];
+      ui.stage.innerHTML = `<p class="speaker">Case ${i+1}</p><p style="margin:8px 0 12px">${c.q}</p>`;
+      c.a.forEach(opt=>{
+        const b=document.createElement('button');
+        b.className='choice'; b.textContent=opt.t;
+        b.onclick=()=>{ acc+=opt.s; i++; if(i>=cases.length) this._finish(acc/cases.length, done); else render(); };
+        ui.stage.appendChild(b);
+      });
+    };
+    render();
+  },
+
+  police(ctx, done) {
+    const ui = this._shell(ctx.title || 'Incident', 'Ask the useful questions. Leave the theatre.');
+    ui.stage.style.padding='16px';
+    let evidence = 20;
+    const lines = [
+      { t:'Separate the witnesses.', s:18 },
+      { t:'Demand a confession immediately.', s:-10 },
+      { t:'Check the camera over the bottle shop.', s:22 },
+      { t:'Search everyone without cause.', s:-14 },
+      { t:'Write what you actually saw.', s:16 },
+      { t:'Let the loudest story win.', s:-12 }
+    ];
+    let n=0;
+    const box=document.createElement('div');
+    ui.stage.appendChild(box);
+    const draw=()=>{
+      box.innerHTML = `<p class="lede">Case strength: ${evidence}</p>`;
+      lines.slice().sort(()=>Math.random()-0.5).slice(0,3).forEach(o=>{
+        const b=document.createElement('button'); b.className='choice'; b.textContent=o.t;
+        b.onclick=()=>{ evidence=LS.clamp(evidence+o.s,0,100); n++; if(n>=4) this._finish(evidence,done); else draw(); };
+        box.appendChild(b);
+      });
+    };
+    draw();
+  },
+
+  shot(ctx, done) {
+    const ui = this._shell(ctx.title || 'Take the shot', 'Click the moving target. Three attempts.');
+    let hits = 0, shots = 0;
+    const spawn = () => {
+      ui.stage.innerHTML = '';
+      const t = document.createElement('div');
+      t.className = 'target';
+      t.style.left = LS.rand(15,85)+'%';
+      t.style.top = LS.rand(20,80)+'%';
+      t.onclick = (e) => { e.stopPropagation(); hits++; next(); };
+      ui.stage.appendChild(t);
+      setTimeout(() => { if (t.parentNode) next(); }, 900);
+    };
+    const next = () => {
+      shots++;
+      if (shots>=3) this._finish(hits/3*100, done);
+      else spawn();
+    };
+    ui.stage.onclick = () => {};
+    spawn();
+  },
+
+  penalty(ctx, done) { this.shot(Object.assign({ title:'Penalty' }, ctx), done); },
+  aim(ctx, done) { this.shot(ctx, done); },
+  boxing(ctx, done) { this.timing(Object.assign({ title:'The Bell', hint:'Time your guard and your shot.' }, ctx), done); },
+  afl(ctx, done) { this.timing(Object.assign({ title:'The Mark', hint:'Time the leap.' }, ctx), done); },
+  sport(ctx, done) { this.timing(ctx, done); },
+  content(ctx, done) { this.dialogue(Object.assign({ title:'The Take' }, ctx), done); }
+};
+
+
+/* Data-driven cutscene runner */
+window.LS = window.LS || {};
+
+LS.Cutscenes = {
+  play(spec, onDone) {
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    const steps = spec.steps || [];
+    let i = 0;
+    const state = { flags:{}, picked:null };
+
+    const draw = () => {
+      const step = steps[i];
+      if (!step) { ov.className='overlay'; ov.innerHTML=''; onDone && onDone(state); return; }
+      if (step.if && !step.if(state)) { i++; draw(); return; }
+
+      ov.innerHTML = `<div class="cutscene">
+        <div class="cs-stage ${step.bg || spec.bg || ''}" id="cs-stage"></div>
+        <div class="cs-ui">
+          <div class="speaker">${step.speaker || spec.title || ''}</div>
+          <div class="line" id="cs-line"></div>
+          <div id="cs-choices" class="choices"></div>
+        </div>
+      </div>`;
+
+      const stage = document.getElementById('cs-stage');
+      (step.sprites || spec.sprites || []).forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'sprite';
+        el.style.width = '72px';
+        el.style.height = '96px';
+        el.style.borderRadius = '40px 40px 12px 12px';
+        el.style.overflow = 'hidden';
+        el.style.border = '2px solid rgba(212,168,83,0.35)';
+        LS.drawAvatar(el, s.look || s, 72);
+        stage.appendChild(el);
+      });
+
+      const lineEl = document.getElementById('cs-line');
+      const text = step.text || '';
+      let n = 0;
+      const type = () => {
+        n++;
+        lineEl.textContent = text.slice(0, n);
+        if (n < text.length) setTimeout(type, 16);
+        else showChoices();
+      };
+      type();
+
+      const showChoices = () => {
+        const box = document.getElementById('cs-choices');
+        if (step.choices && step.choices.length) {
+          step.choices.forEach(ch => {
+            const b = document.createElement('button');
+            b.className = 'choice';
+            b.textContent = ch.label;
+            b.onclick = () => {
+              state.picked = ch.id || ch.label;
+              if (ch.apply) ch.apply(state);
+              i++;
+              draw();
+            };
+            box.appendChild(b);
+          });
+        } else {
+          const b = document.createElement('button');
+          b.className = 'btn primary';
+          b.textContent = step.nextLabel || 'Continue';
+          b.onclick = () => { i++; draw(); };
+          box.appendChild(b);
+        }
+      };
+    };
+    draw();
+  }
+};
+
+
+/* Simulation actions, monthly tick, careers, sports, business */
+window.LS = window.LS || {};
+
+LS.Sim = {
+  advanceMonth(c, quiet) {
+    if (!c.alive) return;
+    c.month++;
+    c.ageMonths++;
+    if (c.month > 11) {
+      c.month = 0;
+      c.calYear++;
+      c.ageYears++;
+      this.yearBoundary(c);
+    }
+    this.economyMonth(c);
+    LS.tickNeeds(c);
+    LS.agePeople(c);
+    this.processQueue(c);
+    if (!c.alive) return;
+    if (!quiet) this.rollEvents(c);
+  },
+
+  advanceMonths(c, n) {
+    for (let i=0;i<n && c.alive;i++) this.advanceMonth(c, i < n-1);
+  },
+
+  yearBoundary(c) {
+    const stage = LS.stageOf(c.ageYears);
+    if (c.ageYears === 5) {
+      c.education.level = 'primary';
+      c.education.school = 'Local Primary';
+      LS.log(c, 'School begins. The bag is too big for you.', 'gold');
+    }
+    if (c.ageYears === 13) {
+      c.education.level = 'secondary';
+      c.education.school = 'Regional High';
+      LS.log(c, 'High school. The corridors are longer than they look.', 'gold');
+    }
+    if (c.ageYears === 18 && c.education.level === 'secondary') {
+      LS.log(c, 'School ends. The rest of it starts without a timetable.', 'gold');
+    }
+    if (c.ageYears === 65 && c.career.id && c.career.id !== 'retired') {
+      LS.log(c, 'People start using the word retirement as if it were weather.', 'teal');
+    }
+    if (c.ageYears >= 88 && LS.chance(12 + (c.ageYears-88)*3)) {
+      c.alive = false;
+      c.causeOfDeath = 'old age';
+    }
+    // school drift
+    if (c.ageYears >= 5 && c.ageYears <= 17) {
+      const drift = (c.intel-50)/20 + (LS.hasTrait(c,'bookish')?1.5:0) + (c.discipline-50)/25;
+      c.education.gpa = LS.clamp(c.education.gpa + drift, 20, 99);
+    }
+    c.career.years += c.career.id ? 1 : 0;
+  },
+
+  economyMonth(c) {
+    const annual = LS.derivedIncome(c);
+    const monthPay = Math.round(annual / 12);
+    if (monthPay) {
+      c.money += monthPay;
+      c.income = annual;
+    }
+    const house = LS.HOUSING.find(h => h.id === c.housing.id) || LS.HOUSING[0];
+    const cost = (house.rent || house.upkeep || 0) / 12;
+    c.money -= Math.round(cost);
+    if (c.ageYears < 18) c.money = Math.max(0, c.money);
+    if (c.money > c.stats.peakMoney) c.stats.peakMoney = c.money;
+    c.netWorth = c.money + (c.housing.owned ? (house.cost || 0) * 0.6 : 0);
+    if (c.business) this.tickBusiness(c);
+  },
+
+  processQueue(c) {
+    const due = c.queue.filter(q => q.year < c.calYear || (q.year === c.calYear && q.month <= c.month));
+    c.queue = c.queue.filter(q => !due.includes(q));
+    due.forEach(q => {
+      if (q.kind === 'birth') {
+        const child = LS.addPerson(c, LS.makeNPC({
+          gender: LS.pick(['male','female']),
+          age: 0,
+          role: 'child',
+          relation: 'Child',
+          bond: 80
+        }));
+        c.childrenIds.push(child.id);
+        c.stats.children++;
+        LS.mod(c,'happiness',14); LS.mod(c,'stress',10);
+        LS.log(c, child.name + ' arrives. The house reorganises around a small new gravity.', 'gold');
+        LS.UI && LS.UI.toast('Family', child.name + ' is born.');
+      }
+      if (q.kind === 'release') {
+        c.career.title = 'Free, with a record';
+        LS.log(c, 'The gate opens. The city is louder than you remembered.', 'teal');
+      }
+      if (q.kind === 'event' && q.eventId) {
+        const ev = LS.Events.catalog.find(e => e.id === q.eventId);
+        if (ev) LS.UI.presentEvent(ev);
+      }
+    });
+  },
+
+  rollEvents(c) {
+    const fired = LS.Events.rollMonth(c);
+    const evs = fired.filter(f => f.type === 'event').map(f => f.data);
+    if (!evs.length) return;
+    // present at most one interactive event
+    evs.sort((a,b)=>(b.weight||0)-(a.weight||0));
+    const ev = evs[0];
+    LS.remember(c, 'ev_' + ev.id);
+    if (LS.UI) LS.UI.presentEvent(ev);
+  },
+
+  work(c) {
+    if (!c.career.id || c.career.id === 'retired') {
+      LS.UI.notify('You do not have a job to attend.');
+      return;
+    }
+    const job = LS.CAREERS[c.career.id];
+    LS.mod(c,'stress', 3);
+    const useMg = job.minigame && LS.chance(40);
+    const finish = (score) => {
+      const delta = Math.round((score-50)/12);
+      c.career.performance = LS.clamp(c.career.performance + delta, 5, 100);
+      LS.mod(c,'confidence', delta>0?2:-1);
+      if (score>=80) LS.addMoney(c, Math.round((job.salary||20000)/24), 'strong month');
+      LS.log(c, 'A month of work as a ' + (c.career.title||job.name) + '. Review: ' + score + '.', score>=60?'good':'bad');
+      this.advanceMonth(c);
+      LS.UI.refresh();
+    };
+    if (useMg) {
+      LS.Minigames.play(job.minigame, { title: job.name }, (score) => finish(score));
+    } else {
+      const base = 40 + c.discipline/5 + c.career.performance/8 + LS.rand(-8,8);
+      finish(LS.clamp(base, 15, 96));
+    }
+  },
+
+  study(c) {
+    LS.mod(c,'stress',4);
+    c.education.gpa = LS.clamp(c.education.gpa + 2 + (LS.hasTrait(c,'bookish')?2:0) + (c.intel>70?1:0), 0, 100);
+    c.skills.academics = LS.clamp(c.skills.academics+2,0,100);
+    LS.log(c, 'You study. The page eventually gives way.');
+    this.advanceMonth(c);
+    LS.UI.refresh();
+  },
+
+  train(c) {
+    const gain = 2 + (LS.hasTrait(c,'athletic')?2:0) + (LS.hasTrait(c,'disciplined')?1:0);
+    LS.mod(c,'fitness', gain);
+    c.skills.athletics = LS.clamp(c.skills.athletics+2,0,100);
+    LS.mod(c,'health', 1);
+    LS.mod(c,'stress',-2);
+    if (c.sport.id) c.sport.rating = LS.clamp(c.sport.rating + 1.5, 0, 100);
+    LS.log(c, 'Training. Sweat, repetition, a slightly different body.');
+    this.advanceMonth(c);
+    LS.UI.refresh();
+  },
+
+  socialise(c) {
+    LS.mod(c,'happiness', 5 + (LS.hasTrait(c,'charming')?3:0));
+    LS.mod(c,'stress',-4);
+    c.skills.social = LS.clamp(c.skills.social+2,0,100);
+    if (LS.chance(35)) {
+      const n = LS.addPerson(c, LS.makeNPC({ age: LS.clamp(c.ageYears+LS.rand(-5,5),5,80), role:'friend', relation:'Friend', bond:35 }));
+      LS.log(c, 'You meet ' + n.name + '.', 'teal');
+    } else {
+      LS.log(c, 'A night out. Ordinary and necessary.');
+    }
+    this.advanceMonth(c);
+    LS.UI.refresh();
+  },
+
+  rest(c) {
+    LS.mod(c,'stress',-10);
+    LS.mod(c,'health',3);
+    LS.mod(c,'happiness',2);
+    LS.log(c, 'You do very little. It helps.');
+    this.advanceMonth(c);
+    LS.UI.refresh();
+  },
+
+  applyUni(c) {
+    if (c.education.degree) { LS.UI.notify('You already have a qualification.'); return; }
+    const gpa = c.education.gpa;
+    const ok = gpa >= 58 || c.intel > 70;
+    this.advanceMonths(c, 1);
+    if (!ok) {
+      LS.log(c, 'The offer does not come. Marks and timing, both.', 'bad');
+      LS.UI.refresh();
+      return;
+    }
+    const paths = [
+      { id:'arts', name:'Arts', job:null },
+      { id:'commerce', name:'Commerce', job:'accountant' },
+      { id:'engineering', name:'Engineering', job:'engineer' },
+      { id:'medicine', name:'Medicine', job:'doctor', need:78 },
+      { id:'law', name:'Law', job:'lawyer', need:72 },
+      { id:'cs', name:'Computer Science', job:'tech' }
+    ];
+    LS.UI.choose('University', 'A campus tour that is also a fork in the road.', paths.map(p => ({
+      label: p.name + (p.need ? ' (requires stronger marks)' : ''),
+      apply: () => {
+        if (p.need && gpa < p.need) {
+          LS.log(c, p.name + ' declines you. Commerce would have taken you.', 'bad');
+          return;
+        }
+        c.education.studying = p.id;
+        c.education.level = 'university';
+        c.education.school = 'State University — ' + p.name;
+        LS.addMoney(c, -4000, 'enrolment');
+        LS.log(c, 'You enrol in ' + p.name + '.', 'gold');
+        LS.Events.schedule(c, { kind:'event' }, 24);
+        // complete after ~3 years via flags
+        LS.remember(c,'degree_pending', p);
+        LS.Events.schedule(c, { kind:'grad' }, 36);
+      }
+    })));
+    // hook grad in processQueue
+  },
+
+  graduateIfDue(c) {
+    // handled below in processQueue patch
+  },
+
+  startSport(c, sportId) {
+    const s = LS.SPORTS.find(x => x.id === sportId) || LS.SPORTS[0];
+    c.sport.id = s.id;
+    c.sport.name = s.name;
+    c.sport.rating = 25 + c.fitness/4 + c.skills.athletics/5;
+    LS.log(c, 'You commit to ' + s.name + '.', 'gold');
+    LS.UI.refresh();
+  },
+
+  playMatch(c) {
+    if (!c.sport.id) { LS.UI.notify('Pick a sport first.'); return; }
+    const s = LS.SPORTS.find(x => x.id === c.sport.id);
+    LS.Minigames.play(s.mg || 'timing', { title: s.name }, (score) => {
+      const attr = (c.fitness + c.skills.athletics + c.sport.rating)/3;
+      const final = LS.clamp(score * 0.6 + attr * 0.4 + LS.rand(-6,6), 0, 100);
+      c.sport.rating = LS.clamp(c.sport.rating + (final-50)/20, 0, 100);
+      LS.mod(c,'fame', final>75?4:1);
+      if (final >= 80) {
+        c.sport.contract = Math.round(20000 + c.sport.rating * 800);
+        c.career.id = 'athlete';
+        c.career.title = 'Professional — ' + s.name;
+        LS.log(c, 'A performance that changes the contract conversation. Score ' + Math.round(final) + '.', 'gold');
+        c.stats.titles++;
+      } else if (final < 35) {
+        LS.mod(c,'happiness',-6);
+        if (LS.chance(20)) { LS.mod(c,'health',-12); LS.log(c,'An injury. The body keeps invoices.','bad'); }
+        else LS.log(c, 'A poor outing. The coach says little.', 'bad');
+      } else {
+        LS.log(c, 'A workmanlike match. Score ' + Math.round(final) + '.');
+      }
+      this.advanceMonth(c);
+      LS.UI.refresh();
+    });
+  },
+
+  startBusiness(c, id) {
+    const b = LS.BUSINESSES.find(x => x.id === id);
+    if (!b) return;
+    if (c.money < b.capital) { LS.UI.notify('Not enough capital.'); return; }
+    LS.addMoney(c, -b.capital, b.name + ' seed');
+    c.business = { id:b.id, name:b.name, month:0, profit:0, health:60, hype:30 };
+    c.career.id = 'entrepreneur';
+    c.career.title = 'Founder — ' + b.name;
+    c.stats.businesses++;
+    LS.log(c, 'You open ' + b.name + '.', 'gold');
+    LS.UI.refresh();
+  },
+
+  tickBusiness(c) {
+    const bdef = LS.BUSINESSES.find(x => x.id === c.business.id);
+    if (!bdef) return;
+    const roll = LS.rand(-bdef.risk, bdef.margin);
+    const profit = Math.round(bdef.capital * roll / 100 / 12);
+    c.business.profit = profit;
+    c.money += profit;
+    c.business.health = LS.clamp(c.business.health + (profit>0?1:-2), 0, 100);
+    if (c.business.health <= 0) {
+      LS.log(c, c.business.name + ' folds.', 'bad');
+      c.business = null;
+    }
+  },
+
+  travelTo(c, id) {
+    const d = LS.DESTINATIONS.find(x => x.id === id);
+    if (!d) return;
+    if (c.money < d.cost) { LS.UI.notify('You cannot afford ' + d.name + '.'); return; }
+    LS.addMoney(c, -d.cost, d.name);
+    LS.mod(c,'happiness', d.happy);
+    LS.mod(c,'stress', -12);
+    c.stats.trips++;
+    LS.log(c, 'You travel to ' + d.name + '.', 'teal');
+    this.advanceMonth(c);
+    LS.UI.refresh();
+  },
+
+  buyHouse(c, id) {
+    const h = LS.HOUSING.find(x => x.id === id);
+    if (!h) return;
+    if (h.cost && c.money < h.cost * 0.15) { LS.UI.notify('The bank will not play.'); return; }
+    if (h.cost) LS.addMoney(c, -Math.round(h.cost * 0.15), 'deposit — ' + h.name);
+    c.housing.id = id;
+    c.housing.owned = !!h.cost;
+    LS.mod(c,'happiness', h.happy || 4);
+    LS.log(c, 'You move into ' + h.name + '.', 'gold');
+    LS.UI.refresh();
+  },
+
+  buyCar(c, id) {
+    const v = LS.VEHICLES.find(x => x.id === id);
+    if (!v) return;
+    if (c.money < v.cost) { LS.UI.notify('Too rich for the account.'); return; }
+    LS.addMoney(c, -v.cost, v.name);
+    c.vehicle.id = id;
+    LS.mod(c,'happiness', Math.round(v.status/8));
+    LS.log(c, 'Keys to a ' + v.name + '.');
+    LS.UI.refresh();
+  },
+
+  interactPerson(c, id, act) {
+    const p = LS.findPerson(c, id);
+    if (!p) return;
+    if (act === 'spend') {
+      p.bond = LS.clamp(p.bond + 6, 0, 100);
+      LS.mod(c,'happiness',4);
+      LS.log(c, 'Time with ' + p.name + '.');
+      this.advanceMonth(c);
+    } else if (act === 'date') {
+      p.attraction = LS.clamp(p.attraction + 8, 0, 100);
+      p.bond = LS.clamp(p.bond + 4, 0, 100);
+      p.role = 'romance';
+      if (c.ageYears >= 16 && !c.partnerId && p.attraction > 55) c.partnerId = p.id;
+      LS.mod(c,'happiness',6);
+      LS.log(c, 'An evening with ' + p.name + '.', 'teal');
+      this.advanceMonth(c);
+    } else if (act === 'argue') {
+      p.bond = LS.clamp(p.bond - 10, 0, 100);
+      LS.mod(c,'stress',6);
+      if (c.partnerId === p.id && p.bond < 25) {
+        c.partnerId = null;
+        p.relation = 'Ex';
+        LS.log(c, 'It ends with ' + p.name + '.', 'bad');
+      } else LS.log(c, 'A sharp conversation with ' + p.name + '.', 'bad');
+    }
+    LS.UI.refresh();
+  },
+
+  audition(c) {
+    LS.Minigames.play('dialogue', { title:'The Audition', hint:'The reader is tired. Earn the room anyway.' }, (score) => {
+      const final = LS.clamp(score * 0.55 + c.charisma * 0.25 + c.creativity * 0.2, 0, 100);
+      if (final >= 75) {
+        LS.mod(c,'fame', 8); LS.addMoney(c, LS.rand(2000,12000), 'booking');
+        c.career.performance = LS.clamp(c.career.performance+8,0,100);
+        LS.log(c, 'They stop you mid-speech. That is the good kind of interruption.', 'gold');
+      } else if (final >= 45) {
+        LS.mod(c,'fame', 2);
+        LS.log(c, 'A callback that becomes a small part. Rent is safer.');
+      } else {
+        LS.mod(c,'confidence',-4);
+        LS.log(c, 'Thank you. Next. The hallway is full of people practicing your speech.', 'bad');
+      }
+      this.advanceMonth(c);
+      LS.UI.refresh();
+    });
+  },
+
+  postContent(c) {
+    LS.Minigames.play('content', { title:'The Take' }, (score) => {
+      const viral = score > 80 && LS.chance(40 + (LS.hasTrait(c,'creative')?15:0));
+      LS.mod(c,'fame', viral ? LS.rand(10,22) : Math.round(score/20));
+      LS.addMoney(c, Math.round((c.fame+5) * score * 0.8), 'platform');
+      LS.log(c, viral ? 'It leaves the house without you. The numbers go feral.' : 'A post. Some people stay. Most keep scrolling.', viral?'gold':'teal');
+      this.advanceMonth(c);
+      LS.UI.refresh();
+    });
+  },
+
+  retire(c) {
+    c.career.id = 'retired';
+    c.career.title = 'Retired';
+    LS.log(c, 'You stop going in. The calendar looks different.', 'gold');
+    LS.UI.refresh();
+  },
+
+  availableActions(c) {
+    const stage = LS.stageOf(c.ageYears);
+    const a = [];
+    a.push({ id:'rest', title:'Rest', desc:'Sleep, walk, recover.', cost:'1 month' });
+    if (stage==='child' || stage==='teen') {
+      a.push({ id:'study', title:'Study', desc:'Marks now, options later.', cost:'1 month' });
+      a.push({ id:'train', title:'Play sport', desc:'Fitness and a possible path.', cost:'1 month' });
+      a.push({ id:'socialise', title:'See friends', desc:'Yards, shops, group chats.', cost:'1 month' });
+    }
+    if (stage==='teen' || stage==='young' || stage==='adult') {
+      a.push({ id:'socialise', title:'Go out', desc:'People, rooms, chances.', cost:'1 month' });
+    }
+    if (c.career.id && c.career.id!=='retired' && c.ageYears>=15) {
+      a.push({ id:'work', title:'Work a month', desc:c.career.title || 'Shift work', cost:'1 month' });
+    }
+    if (c.ageYears>=17 && !c.education.degree && c.education.level!=='university') {
+      a.push({ id:'uni', title:'Apply to university', desc:'GPA ' + Math.round(c.education.gpa), cost:'1 month' });
+    }
+    if (c.ageYears>=13) {
+      a.push({ id:'train', title:'Train', desc:'Body as a long project.', cost:'1 month' });
+    }
+    if (c.sport.id) {
+      a.push({ id:'match', title:'Compete', desc:c.sport.name + ' · rating ' + Math.round(c.sport.rating), cost:'1 month' });
+    }
+    if (c.career.id === 'actor') {
+      a.push({ id:'audition', title:'Audition', desc:'A room, a reader, thirty seconds.', cost:'1 month' });
+    }
+    if (c.career.id === 'influencer') {
+      a.push({ id:'content', title:'Post something', desc:'The algorithm is a mood.', cost:'1 month' });
+    }
+    if (c.ageYears>=18) {
+      a.push({ id:'travel', title:'Travel', desc:'Leave the postcode.', cost:'varies' });
+      a.push({ id:'assets', title:'Housing & cars', desc:'Rooms and keys.', cost:'—' });
+    }
+    if (c.ageYears>=20 && !c.business) {
+      a.push({ id:'business', title:'Start a business', desc:'Capital for a name on a door.', cost:'seed' });
+    }
+    if (c.ageYears>=60 && c.career.id!=='retired') {
+      a.push({ id:'retire', title:'Retire', desc:'Put the badge down.', cost:'—' });
+    }
+    a.push({ id:'year', title:'Let a year pass', desc:'Life, compressed.', cost:'12 months' });
+    // unique by id
+    const seen = {};
+    return a.filter(x => seen[x.id] ? false : (seen[x.id]=true));
+  }
+};
+
+// extra queue kinds
+const _proc = LS.Sim.processQueue;
+LS.Sim.processQueue = function (c) {
+  const due = c.queue.filter(q => q.kind === 'grad' && (q.year < c.calYear || (q.year === c.calYear && q.month <= c.month)));
+  if (due.length) {
+    c.queue = c.queue.filter(q => !due.includes(q));
+    const pending = c.flags.degree_pending;
+    c.education.degree = pending ? pending.name : 'Degree';
+    c.education.studying = null;
+    c.education.level = 'degree';
+    LS.log(c, 'You graduate in ' + c.education.degree + '.', 'gold');
+    if (pending && pending.job && !c.career.id) {
+      const job = LS.CAREERS[pending.job];
+      if (job) {
+        c.career.id = job.id;
+        c.career.title = job.name;
+        c.career.performance = 58;
+        c.stats.jobs++;
+        LS.log(c, 'A graduate role comes with the paper: ' + job.name + '.', 'good');
+      }
+    }
+  }
+  _proc.call(this, c);
+};
+
+
+/* UI layer — screens, overlays, sheets */
+window.LS = window.LS || {};
+
+LS.UI = {
+  c: null,
+  panel: 'life',
+
+  toast(title, body) {
+    const box = document.getElementById('toasts');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<b>${title}</b>${body||''}`;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  },
+  notify(msg) { this.toast('Note', msg); },
+
+  show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+  },
+
+  bindCreate() {
+    const state = {
+      gender: 'male',
+      traits: [],
+      look: { gender:'male', skin:1, hair:0, hairStyle:'short', clothes:'tee', eyes:0, shirt:0 },
+      hobby: LS.HOBBIES[0]
+    };
+    const av = document.getElementById('create-av');
+    const paint = () => { state.look.gender = state.gender; LS.drawAvatar(av, state.look); };
+    paint();
+    document.querySelectorAll('[data-gender]').forEach(b => b.onclick = () => {
+      document.querySelectorAll('[data-gender]').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      state.gender = b.dataset.gender;
+      state.look.gender = state.gender;
+      paint();
+    });
+    ['skin','hair','eyes','shirt'].forEach(k => {
+      const el = document.getElementById('sl-' + k);
+      if (!el) return;
+      el.oninput = () => { state.look[k] = +el.value; paint(); };
+    });
+    const styleEl = document.getElementById('sl-style');
+    if (styleEl) {
+      styleEl.innerHTML = (LS.HAIR_STYLES||[]).map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+      styleEl.onchange = (e) => { state.look.hairStyle = e.target.value; paint(); };
+    }
+    const clEl = document.getElementById('sl-clothes');
+    if (clEl) {
+      clEl.innerHTML = (LS.CLOTHES||[]).map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+      clEl.onchange = (e) => { state.look.clothes = e.target.value; paint(); };
+    }
+    const pills = document.getElementById('trait-pills');
+    pills.innerHTML = '';
+    LS.TRAITS.forEach(t => {
+      const b = document.createElement('button');
+      b.textContent = t.name;
+      b.title = t.desc;
+      b.onclick = () => {
+        if (state.traits.includes(t.id)) {
+          state.traits = state.traits.filter(x => x !== t.id);
+          b.classList.remove('on');
+        } else if (state.traits.length < 3) {
+          state.traits.push(t.id);
+          b.classList.add('on');
+        }
+      };
+      pills.appendChild(b);
+    });
+    const hob = document.getElementById('hobby-sel');
+    hob.innerHTML = LS.HOBBIES.map(h => `<option>${h}</option>`).join('');
+    document.getElementById('btn-born').onclick = () => {
+      const name = document.getElementById('in-name').value.trim() || LS.randomName(state.gender);
+      const life = LS.createLife({
+        name, gender: state.gender, look: state.look,
+        traits: state.traits.length ? state.traits : [LS.pick(LS.TRAITS).id],
+        hobby: hob.value
+      });
+      LS.Game.start(life);
+    };
+    document.getElementById('btn-rand-name').onclick = () => {
+      document.getElementById('in-name').value = LS.randomName(state.gender);
+    };
+  },
+
+  refresh() {
+    const c = this.c;
+    if (!c) return;
+    LS.drawAvatar(document.getElementById('hud-av'), c.look);
+    document.getElementById('hud-name').textContent = c.name;
+    const job = c.career.title || 'Unemployed';
+    const face = c.happiness > 70 ? '😄' : c.happiness < 35 ? '😞' : '😐';
+    document.getElementById('hud-job').textContent = face + ' ' + job;
+    document.getElementById('hud-money').textContent = LS.money(c.money);
+    const ageLine = document.getElementById('age-line');
+    if (ageLine) ageLine.textContent = 'Age: ' + c.ageYears + ' years';
+    const fame = document.getElementById('chip-fame');
+    if (fame) fame.textContent = '★ ' + Math.round(c.fame);
+
+    const setS = (id, val) => {
+      const row = document.getElementById(id);
+      if (!row) return;
+      row.querySelector('i').style.width = LS.clamp(val,0,100) + '%';
+      row.querySelector('em').textContent = Math.round(val) + '%';
+    };
+    setS('st-happy', c.happiness);
+    setS('st-health', c.health);
+    setS('st-int', c.intel);
+    setS('st-looks', c.looks);
+
+    const feed = document.getElementById('feed');
+    const lines = (c.log || []).slice(0, 22);
+    feed.innerHTML = lines.map(e => `<p class="journal-p ${e.tone||''}">${e.text}</p>`).join('')
+      || `<p class="journal-p">I opened my eyes in ${c.city}.</p>`;
+    const journal = document.getElementById('journal');
+    if (journal) journal.scrollTop = 0;
+
+    if (!c.alive) this.showDeath();
+  },
+
+  showBody() {
+    const c = this.c;
+    if (!c) return;
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    ov.innerHTML = `<div class="modal center">
+      <h2>${c.name}</h2>
+      <p class="lede">${c.ageYears} · ${c.gender} · ${c.city}</p>
+      <div class="body-av" id="body-av"></div>
+      <p class="tiny mt">${(c.traits||[]).join(' · ') || 'No traits'} · ${c.hobby||''}</p>
+      <div class="mt"><button class="btn primary" id="body-x">Close</button></div>
+    </div>`;
+    LS.drawBody(document.getElementById('body-av'), c.look);
+    document.getElementById('body-x').onclick = () => this.closeOverlay();
+  },
+
+  sheetActivities() {
+    const c = this.c;
+    if (!c) return;
+    const acts = LS.Sim.availableActions(c).filter(a => a.id !== 'year');
+    this.sheet('Activities', `<div class="action-list" id="act-list"></div>`);
+    const box = document.getElementById('act-list');
+    box.innerHTML = acts.map(a => `
+      <button class="action" data-act="${a.id}">
+        <span class="cost">${a.cost}</span>
+        <div class="t">${a.title}</div>
+        <div class="d">${a.desc}</div>
+      </button>`).join('');
+    box.querySelectorAll('[data-act]').forEach(b => {
+      b.onclick = () => { this.closeOverlay(); this.doAction(b.dataset.act); };
+    });
+  },
+
+  doAction(id) {
+    const c = this.c;
+    if (!c.alive) return;
+    if (id === 'work') LS.Sim.work(c);
+    else if (id === 'study') LS.Sim.study(c);
+    else if (id === 'train') LS.Sim.train(c);
+    else if (id === 'socialise') LS.Sim.socialise(c);
+    else if (id === 'rest') LS.Sim.rest(c);
+    else if (id === 'uni') LS.Sim.applyUni(c);
+    else if (id === 'match') LS.Sim.playMatch(c);
+    else if (id === 'audition') LS.Sim.audition(c);
+    else if (id === 'content') LS.Sim.postContent(c);
+    else if (id === 'year') {
+      for (let i=0;i<12 && c.alive;i++) LS.Sim.advanceMonth(c, i<11);
+      LS.log(c, 'I turned another year older.', 'gold');
+      this.refresh();
+    }
+    else if (id === 'travel') this.sheetTravel();
+    else if (id === 'assets') this.sheetAssets();
+    else if (id === 'business') this.sheetBusiness();
+    else if (id === 'retire') LS.Sim.retire(c);
+    LS.Game.autosave();
+  },
+
+  presentEvent(ev) {
+    const c = this.c;
+    if (ev.special === 'minigame' && ev.minigame) {
+      const go = () => {
+        LS.Minigames.play(ev.minigame, ev.minigameCtx || { title: ev.title }, (score) => {
+          const msg = ev.afterMinigame ? ev.afterMinigame(c, score) : 'Result: ' + score;
+          LS.log(c, msg, score>=60?'good':'bad');
+          this.toast(ev.title, msg);
+          this.refresh();
+          LS.Game.autosave();
+        });
+      };
+      this.modal(ev.title, ev.text, [{ label:'Begin', apply: go }]);
+      return;
+    }
+    const choices = (ev.choices || [{ label:'Continue', apply:()=>'' }]).map(ch => ({
+      label: ch.label,
+      apply: () => {
+        const msg = ch.apply ? ch.apply(c) : '';
+        if (msg === '__minigame__') return;
+        if (msg) { LS.log(c, msg, 'gold'); this.toast(ev.title, msg); }
+        this.refresh();
+        LS.Game.autosave();
+      }
+    }));
+    this.modal(ev.title, ev.text, choices, ev.scene);
+  },
+
+  modal(title, text, choices) {
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    ov.innerHTML = `<div class="modal">
+      <h2>${title}</h2>
+      <p class="lede">${text}</p>
+      <div class="choices" id="modal-choices"></div>
+    </div>`;
+    const box = document.getElementById('modal-choices');
+    (choices||[]).forEach(ch => {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.innerHTML = ch.label + (ch.hint ? `<small>${ch.hint}</small>` : '');
+      b.onclick = () => {
+        ov.className = 'overlay';
+        ov.innerHTML = '';
+        ch.apply && ch.apply();
+      };
+      box.appendChild(b);
+    });
+  },
+
+  choose(title, text, choices) { this.modal(title, text, choices); },
+
+  closeOverlay() {
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay';
+    ov.innerHTML = '';
+  },
+
+  sheet(title, html) {
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    ov.innerHTML = `<div class="modal wide">
+      <h2>${title}</h2>
+      <div>${html}</div>
+      <div class="mt"><button class="btn ghost" id="sheet-x">Close</button></div>
+    </div>`;
+    document.getElementById('sheet-x').onclick = () => this.closeOverlay();
+  },
+
+  sheetPeople() {
+    const c = this.c;
+    const html = c.people.filter(p=>p.alive).map(p => `
+      <div class="person" data-p="${p.id}">
+        <div class="mini" id="mini-${p.id}"></div>
+        <div style="flex:1">
+          <h4>${p.name}</h4>
+          <div class="rel-meta">${p.relation} · ${Math.floor(p.age)} · ${p.personality}</div>
+          <div class="tiny">Bond ${Math.round(p.bond)} · Trust ${Math.round(p.trust||0)}</div>
+        </div>
+      </div>`).join('') || '<p class="muted">No one yet.</p>';
+    this.sheet('People', html);
+    c.people.forEach(p => LS.drawAvatar(document.getElementById('mini-'+p.id), p.look));
+    document.querySelectorAll('.person').forEach(el => {
+      el.onclick = () => this.personDetail(el.dataset.p);
+    });
+  },
+
+  personDetail(id) {
+    const c = this.c;
+    const p = LS.findPerson(c, id);
+    if (!p) return;
+    this.sheet(p.name, `
+      <p class="lede">${p.relation}. ${p.personality}. Age ${Math.floor(p.age)}.</p>
+      <div class="btn-row">
+        <button class="btn sm" id="p-spend">Spend time</button>
+        ${c.ageYears>=16 && p.age>=16 && p.role!=='parent' && p.role!=='child' ? '<button class="btn sm" id="p-date">Date</button>' : ''}
+        <button class="btn sm danger" id="p-arg">Argue</button>
+      </div>`);
+    document.getElementById('p-spend').onclick = () => { this.closeOverlay(); LS.Sim.interactPerson(c,id,'spend'); };
+    const d = document.getElementById('p-date');
+    if (d) d.onclick = () => { this.closeOverlay(); LS.Sim.interactPerson(c,id,'date'); };
+    document.getElementById('p-arg').onclick = () => { this.closeOverlay(); LS.Sim.interactPerson(c,id,'argue'); };
+  },
+
+  sheetCareer() {
+    const c = this.c;
+    const job = LS.CAREERS[c.career.id];
+    let html = `<p class="lede">${c.career.title || 'No role'} · Performance ${Math.round(c.career.performance||0)}</p>
+      <p class="tiny">Income (annual est.) ${LS.money(LS.derivedIncome(c))}</p>`;
+    if (c.ageYears >= 15) {
+      html += '<h3 class="mt" style="color:var(--gold);font-size:12px;letter-spacing:.14em">OPENINGS</h3><div class="sheet-grid">';
+      Object.values(LS.CAREERS).filter(j => j.minAge <= c.ageYears && j.id!=='student' && j.id!=='retired').forEach(j => {
+        html += `<div class="card"><h4>${j.name}</h4><p>${j.field} · ${LS.money(j.salary)} · stress ${j.stress}</p>
+          <button class="btn sm mt" data-job="${j.id}">Pursue</button></div>`;
+      });
+      html += '</div>';
+    }
+    if (!c.sport.id && c.ageYears>=10) {
+      html += '<h3 class="mt" style="color:var(--gold);font-size:12px;letter-spacing:.14em">SPORTS</h3><div class="sheet-grid">';
+      LS.SPORTS.forEach(s => {
+        html += `<div class="card"><h4>${s.name}</h4><p>Train and compete. Rating uses fitness + skill.</p>
+          <button class="btn sm mt" data-sport="${s.id}">Commit</button></div>`;
+      });
+      html += '</div>';
+    }
+    this.sheet('Work & craft', html);
+    document.querySelectorAll('[data-job]').forEach(b => b.onclick = () => {
+      const j = LS.CAREERS[b.dataset.job];
+      if (j.reqEdu === 'degree' && !c.education.degree && c.education.level!=='degree') {
+        this.notify('This path wants a degree.');
+        return;
+      }
+      if (j.reqEdu === 'medicine' && c.education.degree !== 'Medicine') {
+        this.notify('Medicine requires the medical degree.');
+        return;
+      }
+      if (j.reqEdu === 'law' && c.education.degree !== 'Law') {
+        this.notify('Law requires the law degree.');
+        return;
+      }
+      c.career.id = j.id;
+      c.career.title = j.name;
+      c.career.performance = 50;
+      c.stats.jobs++;
+      LS.log(c, 'You step into work as a ' + j.name + '.', 'gold');
+      this.closeOverlay();
+      this.refresh();
+    });
+    document.querySelectorAll('[data-sport]').forEach(b => b.onclick = () => {
+      LS.Sim.startSport(c, b.dataset.sport);
+      this.closeOverlay();
+    });
+  },
+
+  sheetTravel() {
+    const c = this.c;
+    let html = '<div class="sheet-grid">';
+    LS.DESTINATIONS.forEach(d => {
+      html += `<div class="card"><h4>${d.name}</h4><p>${d.vibe} · ${LS.money(d.cost)}</p>
+        <button class="btn sm mt" data-dest="${d.id}">Go</button></div>`;
+    });
+    html += '</div>';
+    this.sheet('Leave town', html);
+    document.querySelectorAll('[data-dest]').forEach(b => b.onclick = () => {
+      this.closeOverlay();
+      LS.Sim.travelTo(c, b.dataset.dest);
+    });
+  },
+
+  sheetAssets() {
+    const c = this.c;
+    let html = '<h3 style="color:var(--gold);font-size:12px;letter-spacing:.14em">HOUSING</h3><div class="sheet-grid">';
+    LS.HOUSING.forEach(h => {
+      html += `<div class="card"><h4>${h.name}</h4><p>${h.cost?LS.money(h.cost)+' · deposit ~15%':'Rent '+LS.money(h.rent||0)+'/yr'}</p>
+        <button class="btn sm mt" data-house="${h.id}">Move</button></div>`;
+    });
+    html += '</div><h3 class="mt" style="color:var(--gold);font-size:12px;letter-spacing:.14em">VEHICLES</h3><div class="sheet-grid">';
+    LS.VEHICLES.forEach(v => {
+      html += `<div class="card"><h4>${v.name}</h4><p>${LS.money(v.cost)}</p>
+        <button class="btn sm mt" data-car="${v.id}">Buy</button></div>`;
+    });
+    html += '</div>';
+    this.sheet('Rooms & keys', html);
+    document.querySelectorAll('[data-house]').forEach(b => b.onclick = () => { this.closeOverlay(); LS.Sim.buyHouse(c,b.dataset.house); });
+    document.querySelectorAll('[data-car]').forEach(b => b.onclick = () => { this.closeOverlay(); LS.Sim.buyCar(c,b.dataset.car); });
+  },
+
+  sheetBusiness() {
+    const c = this.c;
+    let html = '<div class="sheet-grid">';
+    LS.BUSINESSES.forEach(b => {
+      html += `<div class="card"><h4>${b.name}</h4><p>Seed ${LS.money(b.capital)} · risk ${b.risk}</p>
+        <button class="btn sm mt" data-biz="${b.id}">Found</button></div>`;
+    });
+    html += '</div>';
+    this.sheet('A name on a door', html);
+    document.querySelectorAll('[data-biz]').forEach(b => b.onclick = () => { this.closeOverlay(); LS.Sim.startBusiness(c, b.dataset.biz); });
+  },
+
+  sheetStats() {
+    const c = this.c;
+    const skills = LS.SKILL_KEYS.map(k => `<div class="stat"><span>${k}</span><div class="bar"><i style="width:${c.skills[k]||0}%"></i></div><em>${Math.round(c.skills[k]||0)}</em></div>`).join('');
+    this.sheet('The ledger', `
+      <p class="lede">Net worth ${LS.money(c.netWorth)} · Fame ${Math.round(c.fame)} · Karma ${Math.round(c.karma)}</p>
+      <p class="tiny">Traits: ${(c.traits||[]).join(', ')} · Hobby: ${c.hobby}</p>
+      <p class="tiny">Education: ${c.education.school||'—'} · GPA ${Math.round(c.education.gpa)} · ${c.education.degree||'no degree'}</p>
+      <p class="tiny">Record: ${c.crime.record?'yes':'clean'} · Children ${c.stats.children} · Marriages ${c.stats.marriages} · Trips ${c.stats.trips}</p>
+      <div class="mt stat-list">${skills}</div>
+    `);
+  },
+
+  showDeath() {
+    const c = this.c;
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    ov.innerHTML = `<div class="modal center">
+      <div class="end-wrap">
+        <p class="tiny">AETERNUM</p>
+        <h1>${c.ageYears}</h1>
+        <p class="obit">${c.name} died at ${c.ageYears} of ${c.causeOfDeath||'causes unnamed'}.
+        They left ${LS.money(Math.max(0,c.money))}, ${c.stats.children} children,
+        a peak happiness of ${Math.round(c.stats.peakHappiness)},
+        and fame that reached ${Math.round(c.stats.peakFame)}.</p>
+        <div class="btn-row mt">
+          <button class="btn primary" id="new-after">Another life</button>
+          <button class="btn" id="keep-after">Close</button>
+        </div>
+      </div>
+    </div>`;
+    document.getElementById('new-after').onclick = () => { this.closeOverlay(); LS.Game.newLife(); };
+    document.getElementById('keep-after').onclick = () => this.closeOverlay();
+  }
+};
+
+
+/* BitLife-style full-screen lists + extra life activities */
+window.LS = window.LS || {};
+
+LS.UI.openList = function (title, sections) {
+  const ov = document.getElementById('overlay');
+  ov.className = 'overlay show sheet-full';
+  let html = `<div class="bl-sheet">
+    <div class="bl-sheet-bar"><button class="bl-x" id="sheet-x">✕</button><div class="bl-sheet-title">${title}</div></div>
+    <div class="bl-sheet-body">`;
+  (sections || []).forEach(sec => {
+    if (sec.label) html += `<div class="bl-sec">${sec.label}</div>`;
+    (sec.rows || []).forEach(r => {
+      const dim = r.dim ? ' dim' : '';
+      html += `<button class="bl-row${dim}" data-act="${r.act||''}" data-arg="${r.arg||''}">
+        <span class="bl-ico">${r.icon||'•'}</span>
+        <span class="bl-copy"><b>${r.title}</b><small>${r.sub||''}</small>
+          ${r.bar!=null ? `<i class="rel-bar"><i style="width:${LS.clamp(r.bar,0,100)}%"></i></i>` : ''}
+        </span>
+        <span class="bl-chev">${r.dots ? '•••' : '>'}</span>
+      </button>`;
+    });
+  });
+  html += `</div></div>`;
+  ov.innerHTML = html;
+  ov.querySelector('#sheet-x').onclick = () => LS.UI.closeOverlay();
+  ov.querySelectorAll('.bl-row').forEach(b => {
+    b.onclick = () => {
+      const act = b.dataset.act, arg = b.dataset.arg;
+      if (!act) return;
+      LS.UI.runMenu(act, arg);
+    };
+  });
+};
+
+LS.UI.runMenu = function (act, arg) {
+  const c = this.c;
+  if (!c) return;
+  const S = LS.Sim;
+  const map = {
+    close: () => this.closeOverlay(),
+    work: () => { this.closeOverlay(); S.work(c); },
+    quit: () => { c.career.id=null; c.career.title='Unemployed'; LS.log(c,'I left the job.','teal'); this.closeOverlay(); this.refresh(); },
+    jobs: () => this.jobList('full'),
+    parttime: () => this.jobList('part'),
+    special: () => this.jobList('special'),
+    military: () => this.takeJob('military'),
+    fight: () => { this.closeOverlay(); if (!c.sport.id) S.startSport(c,'boxing'); S.playMatch(c); },
+    freelance: () => { this.closeOverlay(); LS.addMoney(c, LS.rand(80,400),'gig'); LS.mod(c,'stress',4); LS.log(c,'I picked up a freelance gig.'); S.advanceMonth(c); this.refresh(); },
+    takejob: () => this.takeJob(arg),
+    sport: () => { this.closeOverlay(); S.startSport(c, arg); },
+    house: () => { this.closeOverlay(); S.buyHouse(c, arg); },
+    car: () => { this.closeOverlay(); S.buyCar(c, arg); },
+    biz: () => { this.closeOverlay(); S.startBusiness(c, arg); },
+    invest: () => this.doInvest(),
+    finances: () => this.sheetStats(),
+    shop: () => this.doShop(),
+    person: () => this.personDetail(arg),
+    spendall: () => { c.people.filter(p=>p.alive).forEach(p => p.bond=LS.clamp(p.bond+3,0,100)); LS.mod(c,'happiness',5); LS.log(c,'I spent time with the people I have.'); this.closeOverlay(); S.advanceMonth(c); this.refresh(); },
+    love: () => this.doLove(),
+    identity: () => this.doIdentity(),
+    doctor: () => { this.closeOverlay(); LS.addMoney(c,-LS.rand(80,400),'clinic'); LS.mod(c,'health',10); LS.mod(c,'stress',-4); LS.log(c,'I saw a doctor.'); S.advanceMonth(c); this.refresh(); },
+    nightlife: () => { this.closeOverlay(); S.socialise(c); },
+    outdoor: () => { this.closeOverlay(); LS.mod(c,'happiness',6); LS.mod(c,'fitness',2); LS.log(c,'I went outside on purpose.'); S.advanceMonth(c); this.refresh(); },
+    movies: () => { this.closeOverlay(); LS.addMoney(c,-28,'tickets'); LS.mod(c,'happiness',5); LS.log(c,'I sat in the dark and watched someone else live.'); S.advanceMonth(c); this.refresh(); },
+    vacation: () => { this.closeOverlay(); this.sheetTravel(); },
+    crime: () => this.doCrime(),
+    gamble: () => this.doGamble(),
+    lottery: () => { this.closeOverlay(); LS.addMoney(c,-12,'lotto'); if (LS.chance(2)) { LS.addMoney(c, LS.rand(2000,80000),'lotto win'); LS.log(c,'The numbers were mine.','gold'); } else LS.log(c,'Another scrap of paper.'); S.advanceMonth(c); this.refresh(); },
+    social: () => { this.closeOverlay(); if (c.career.id!=='influencer') { c.career.id='influencer'; c.career.title='Creator'; } S.postContent(c); },
+    mind: () => { this.closeOverlay(); S.train(c); },
+    rehab: () => { this.closeOverlay(); LS.addMoney(c,-2000,'rehab'); LS.mod(c,'health',12); LS.mod(c,'stress',-16); LS.log(c,'I asked for help properly.','teal'); S.advanceMonth(c); this.refresh(); },
+    surgery: () => { this.closeOverlay(); if (c.ageYears<18) { this.notify('Not until 18.'); return; } LS.addMoney(c,-8000,'clinic'); LS.mod(c,'looks',8); LS.mod(c,'health',-4); LS.log(c,'I paid to change a face in the mirror.'); S.advanceMonth(c); this.refresh(); },
+    salon: () => { this.closeOverlay(); LS.addMoney(c,-90,'salon'); LS.mod(c,'looks',3); LS.mod(c,'happiness',3); LS.log(c,'I left with a different haircut and the same problems.'); this.refresh(); },
+    clothes: () => this.doClothes(),
+    license: () => { this.closeOverlay(); if (c.ageYears<17) { this.notify('Too young.'); return; } c.skills.driving=LS.clamp((c.skills.driving||10)+15,0,100); LS.addMoney(c,-80,'licence'); LS.log(c,'I sat the driving test.'); S.advanceMonth(c); this.refresh(); },
+    pet: () => { this.closeOverlay(); LS.addMoney(c,-400,'pet'); LS.mod(c,'happiness',8); LS.log(c,'Something small and living moved into the house.','teal'); this.refresh(); },
+    will: () => { LS.remember(c,'will'); LS.log(c,'I wrote down who gets what.'); this.closeOverlay(); this.refresh(); },
+    emigrate: () => { this.closeOverlay(); this.sheetTravel(); },
+    adopt: () => {
+      this.closeOverlay();
+      if (c.ageYears<21) { this.notify('Agencies will not play yet.'); return; }
+      const child = LS.addPerson(c, LS.makeNPC({ age: LS.rand(1,8), role:'child', relation:'Child', bond:70 }));
+      c.childrenIds.push(child.id); c.stats.children++;
+      LS.log(c, child.name + ' came home.','gold'); S.advanceMonth(c); this.refresh();
+    }
+  };
+  if (map[act]) map[act]();
+};
+
+LS.UI.takeJob = function (id) {
+  const c = this.c;
+  const j = LS.CAREERS[id];
+  if (!j) return;
+  if (j.reqEdu === 'degree' && !c.education.degree) { this.notify('This wants a degree.'); return; }
+  if (j.reqEdu === 'medicine' && c.education.degree !== 'Medicine') { this.notify('Medicine first.'); return; }
+  if (j.reqEdu === 'law' && c.education.degree !== 'Law') { this.notify('Law first.'); return; }
+  c.career.id = j.id; c.career.title = j.name; c.career.performance = 52; c.stats.jobs++;
+  LS.log(c, 'I started work as a ' + j.name + '.', 'gold');
+  this.closeOverlay(); this.refresh();
+};
+
+LS.UI.jobList = function (kind) {
+  const c = this.c;
+  const special = ['athlete','actor','musician','influencer','entrepreneur','criminal'];
+  const part = ['retail','hospitality','trades'];
+  let jobs = Object.values(LS.CAREERS).filter(j => j.id!=='student' && j.id!=='retired' && j.minAge<=c.ageYears);
+  if (kind==='special') jobs = jobs.filter(j => special.includes(j.id));
+  else if (kind==='part') jobs = jobs.filter(j => part.includes(j.id));
+  else jobs = jobs.filter(j => !special.includes(j.id));
+  this.openList(kind==='special'?'SPECIAL CAREERS':kind==='part'?'PART-TIME':'JOBS', [{
+    rows: jobs.map(j => ({ icon:'💼', title:j.name, sub:j.field+' · '+LS.money(j.salary)+'/yr', act:'takejob', arg:j.id }))
+  }]);
+};
+
+LS.UI.sheetCareer = function () {
+  const c = this.c;
+  const rows = [];
+  if (c.career.id && c.career.id!=='retired') {
+    rows.push({ icon:'🪪', title:c.career.title, sub:'Performance '+Math.round(c.career.performance)+' · '+LS.money(LS.derivedIncome(c))+'/yr', act:'work' });
+    rows.push({ icon:'🚪', title:'Resign', sub:'Walk out', act:'quit' });
+  }
+  this.openList('OCCUPATION', [
+    { rows: [
+      { icon:'🥊', title:'Fight', sub:'Train and compete', act:'fight' },
+      { icon:'🧢', title:'Freelance gigs', sub:'Quick cash, uneven hours', act:'freelance' },
+      { icon:'📞', title:'Job recruiter', sub:'See what is hiring', act:'jobs' },
+      { icon:'💵', title:'Jobs', sub:'Full-time listings', act:'jobs' },
+      { icon:'🛡️', title:'Military', sub:'Enlist', act:'military' },
+      { icon:'⏰', title:'Part-time jobs', sub:'Hourly work', act:'parttime' },
+      { icon:'🎩', title:'Special careers', sub:'Sport, stage, content, crime', act:'special' }
+    ]},
+    { label:'Current', rows }
+  ]);
+};
+
+LS.UI.sheetAssets = function () {
+  const c = this.c;
+  this.openList('ASSETS', [
+    { label:'Finances', rows: [
+      { icon:'💰', title:'Finances', sub:'Cash '+LS.money(c.money)+' · net '+LS.money(c.netWorth), act:'finances', dots:true },
+      { icon:'📊', title:'Investments', sub:'Put money at risk', act:'invest' }
+    ]},
+    { label:'Property', rows: LS.HOUSING.map(h => ({ icon:'🏠', title:h.name, sub:h.cost?LS.money(h.cost):'Rent '+LS.money(h.rent||0), act:'house', arg:h.id })) },
+    { label:'Vehicles', rows: LS.VEHICLES.map(v => ({ icon:'🚗', title:v.name, sub:LS.money(v.cost), act:'car', arg:v.id })) },
+    { label:'Business', rows: LS.BUSINESSES.map(b => ({ icon:'🏢', title:b.name, sub:'Seed '+LS.money(b.capital), act:'biz', arg:b.id })) },
+    { label:'Misc.', rows: [
+      { icon:'🛍️', title:'Go shopping', sub:'Clothes and small things', act:'shop' },
+      { icon:'👤', title:'Social media', sub:'Manage a public face', act:'social' }
+    ]}
+  ]);
+};
+
+LS.UI.sheetPeople = function () {
+  const c = this.c;
+  const parents = c.people.filter(p => p.role==='parent' && p.alive);
+  const love = c.people.filter(p => (p.role==='romance'||p.id===c.partnerId) && p.alive && p.relation!=='Ex');
+  const exes = c.people.filter(p => p.relation==='Ex');
+  const friends = c.people.filter(p => p.role==='friend' && p.alive);
+  const kids = c.people.filter(p => p.role==='child' && p.alive);
+  const rowP = (p) => ({ icon:'🙂', title:p.name+' ('+p.relation+')', sub:'Relationship', bar:p.bond, act:'person', arg:p.id });
+  this.openList('RELATIONSHIPS', [
+    { label:'Parents', rows: parents.map(rowP) },
+    { label:'Love', rows: love.length ? love.map(rowP) : [{ icon:'💔', title:'Exes', sub:exes.length?exes.length+' on file':'No one right now', act:'love' }] },
+    { label:'Family', rows: kids.map(rowP) },
+    { label:'Friends', rows: friends.map(rowP) },
+    { rows: [{ icon:'🕰️', title:'Spend time with all', sub:'A month of showing up', act:'spendall' }] }
+  ]);
+};
+
+LS.UI.sheetActivities = function () {
+  const c = this.c;
+  const adult = c.ageYears >= 18;
+  this.openList('ACTIVITIES', [
+    { label:'Favorites', rows: [
+      { icon:'🎭', title:'Crime', sub:'Risk and heat', act:'crime' },
+      { icon:'🌍', title:'Vacation', sub:'Leave the postcode', act:'vacation' },
+      { icon:'♠️', title:'Gamble', sub:'A room that wants your money', act:'gamble' },
+      { icon:'❤️', title:'Love', sub:'Meet someone', act:'love' },
+      { icon:'🧘', title:'Mind & body', sub:'Train, walk, recover', act:'mind' }
+    ]},
+    { label:'All', rows: [
+      { icon:'👒', title:'Clothes', sub:'Change what you wear', act:'clothes' },
+      { icon:'🧸', title:'Adoption', sub:'Make a home larger', act:'adopt', dim: !adult },
+      { icon:'🩺', title:'Doctor', sub:'Get checked', act:'doctor' },
+      { icon:'🌳', title:'Outdoor', sub:'Air and distance', act:'outdoor' },
+      { icon:'🎬', title:'Movies', sub:'Two hours that are not yours', act:'movies' },
+      { icon:'🍸', title:'Nightlife', sub:'Rooms and people', act:'nightlife' },
+      { icon:'🐶', title:'Pets', sub:'A living extra cost', act:'pet' },
+      { icon:'✂️', title:'Plastic surgery', sub:'Looks, for a price', act:'surgery', dim: !adult },
+      { icon:'☀️', title:'Rehab', sub:'Stop a pattern', act:'rehab', dim: !adult },
+      { icon:'💆', title:'Salon & spa', sub:'Hair and quiet', act:'salon' },
+      { icon:'🛍️', title:'Shopping', sub:'Spend on purpose', act:'shop' },
+      { icon:'👤', title:'Identity', sub:'Orientation and gender', act:'identity', dim: !adult },
+      { icon:'🚗', title:'Licences', sub:'Drive legally', act:'license' },
+      { icon:'💸', title:'Lottery', sub:'A dollar and a story', act:'lottery' },
+      { icon:'📄', title:'Will & testament', sub:'Write it down', act:'will', dim: c.ageYears<30 },
+      { icon:'🌐', title:'Emigrate / travel', sub:'Another city', act:'emigrate' }
+    ]}
+  ]);
+};
+
+LS.UI.doIdentity = function () {
+  const c = this.c;
+  if (c.ageYears < 18) { this.notify('This opens at 18.'); return; }
+  c.identity = c.identity || { sexuality:'straight', genderId:c.gender, trans:false };
+  this.modal('Identity', 'Who you are attracted to, and how you live in a body. Tasteful. Adult. Reversible in the ledger, not in other people\'s memory.', [
+    { label:'Straight', apply:()=>{ c.identity.sexuality='straight'; LS.log(c,'I named my orientation: straight.'); this.refresh(); }},
+    { label:'Gay', apply:()=>{ c.identity.sexuality='gay'; LS.log(c,'I named my orientation: gay.'); this.refresh(); }},
+    { label:'Lesbian', apply:()=>{ c.identity.sexuality='lesbian'; LS.log(c,'I named my orientation: lesbian.'); this.refresh(); }},
+    { label:'Bisexual', apply:()=>{ c.identity.sexuality='bi'; LS.log(c,'I named my orientation: bisexual.'); this.refresh(); }},
+    { label:'Questioning', apply:()=>{ c.identity.sexuality='questioning'; LS.log(c,'I am not finished naming it.'); this.refresh(); }},
+    { label:'Live as a man', apply:()=>{ c.gender='male'; c.identity.genderId='male'; c.look.gender='male'; LS.log(c,'I live as a man.'); this.refresh(); }},
+    { label:'Live as a woman', apply:()=>{ c.gender='female'; c.identity.genderId='female'; c.look.gender='female'; LS.log(c,'I live as a woman.'); this.refresh(); }},
+    { label:'Transition (medical + social)', apply:()=>{
+      c.identity.trans = true;
+      c.gender = c.gender==='male'?'female':'male';
+      c.identity.genderId = c.gender;
+      c.look.gender = c.gender;
+      LS.addMoney(c,-LS.rand(2000,9000),'care');
+      LS.mod(c,'stress',8); LS.mod(c,'happiness',6);
+      LS.log(c,'I started transitioning. It is paperwork, medicine, and other people catching up.','teal');
+      this.refresh();
+    }}
+  ]);
+};
+
+LS.UI.doLove = function () {
+  const c = this.c;
+  const g = LS.partnerGenderFor(c);
+  const n = LS.addPerson(c, LS.makeNPC({
+    gender: g, age: LS.clamp(c.ageYears+LS.rand(-4,4),18,70),
+    role:'romance', relation:'Dating', bond:40, attraction: LS.rand(45,80)
+  }));
+  n.look.gender = g;
+  if (c.ageYears>=16) c.partnerId = n.id;
+  LS.mod(c,'happiness',8);
+  LS.log(c, 'I met ' + n.name + '.', 'teal');
+  this.closeOverlay();
+  LS.Sim.advanceMonth(c);
+  this.refresh();
+};
+
+LS.UI.doCrime = function () {
+  const c = this.c;
+  this.modal('Crime', 'Abstract trouble. No instructions — just heat and money.', [
+    { label:'A small job ($800, some heat)', apply:()=>{
+      LS.addMoney(c,800,'off-books'); c.crime.heat+=10; LS.mod(c,'karma',-6);
+      if (LS.chance(c.crime.heat)) { c.crime.record=true; c.stats.arrests++; LS.mod(c,'reputation',-12); LS.log(c,'I was caught.','bad'); }
+      else LS.log(c,'I took the envelope.');
+      LS.Sim.advanceMonth(c); this.refresh();
+    }},
+    { label:'Walk away', apply:()=>{ LS.log(c,'I left it.'); this.refresh(); }}
+  ]);
+};
+
+LS.UI.doGamble = function () {
+  const c = this.c;
+  const stake = Math.min(400, Math.max(20, Math.round(c.money*0.05)));
+  this.closeOverlay();
+  if (c.money < stake) { this.notify('Pockets too light.'); return; }
+  if (LS.chance(46)) { LS.addMoney(c, stake, 'tables'); LS.log(c,'The table paid.'); }
+  else { LS.addMoney(c, -stake, 'tables'); LS.log(c,'The table ate it.','bad'); }
+  LS.Sim.advanceMonth(c); this.refresh();
+};
+
+LS.UI.doInvest = function () {
+  const c = this.c;
+  const stake = Math.min(c.money*0.15, 20000);
+  this.closeOverlay();
+  if (stake < 200) { this.notify('Need more cash.'); return; }
+  if (LS.chance(55)) LS.addMoney(c, Math.round(stake*0.2), 'invest');
+  else LS.addMoney(c, -Math.round(stake), 'invest');
+  LS.Sim.advanceMonth(c); this.refresh();
+};
+
+LS.UI.doShop = function () {
+  const c = this.c;
+  this.closeOverlay();
+  LS.addMoney(c, -LS.rand(40,220), 'shopping');
+  LS.mod(c,'happiness',3);
+  LS.log(c,'I bought things I can carry.');
+  this.refresh();
+};
+
+LS.UI.doClothes = function () {
+  const c = this.c;
+  this.modal('Clothes', 'Pick a real-world style.', LS.CLOTHES.map(cl => ({
+    label: cl.name,
+    apply: () => { c.look.clothes = cl.id; LS.log(c,'I changed into a '+cl.name.toLowerCase()+'.'); this.refresh(); }
+  })));
+};
+
+
+/* Dev mode — preview every minigame, event and cutscene */
+window.LS = window.LS || {};
+
+LS.DEV_SCENES = [
+  {
+    id: 'beginning',
+    name: 'Birth / Beginning',
+    play() {
+      const c = LS.Game.life || LS.createLife({ name: 'Dev Child' });
+      LS.Cutscenes.play({
+        title: 'Beginning', bg: 'home',
+        sprites: [{ look: c.look }, { look: LS.newLook() }],
+        steps: [
+          { speaker: 'Parent', text: 'A small sound fills the room.' },
+          { speaker: 'Aeternum', text: 'This is the opening cutscene. Dev preview only.' }
+        ]
+      });
+    }
+  },
+  {
+    id: 'park_talk',
+    name: 'Park conversation',
+    play() {
+      LS.Cutscenes.play({
+        title: 'Park', bg: 'park',
+        sprites: [{ look: LS.newLook() }, { look: LS.newLook() }],
+        steps: [
+          { speaker: 'Alex', text: 'You came. I was not sure you would.' },
+          { speaker: 'You', text: 'The weather did half the work.' },
+          {
+            speaker: 'Alex', text: 'So. Are we doing this?',
+            choices: [
+              { label: 'Yes. Walk the long way.', apply() {} },
+              { label: 'Keep it light.', apply() {} }
+            ]
+          }
+        ]
+      });
+    }
+  },
+  {
+    id: 'office_scene',
+    name: 'Office scene',
+    play() {
+      LS.Cutscenes.play({
+        title: 'Office', bg: 'office',
+        sprites: [{ look: LS.newLook() }],
+        steps: [
+          { speaker: 'Manager', text: 'Close the door. This is the good kind of meeting.' },
+          { speaker: 'Manager', text: 'We want you upstairs. The hours come with the carpet.' }
+        ]
+      });
+    }
+  },
+  {
+    id: 'night_out',
+    name: 'Night out',
+    play() {
+      LS.Cutscenes.play({
+        title: 'Night', bg: 'night',
+        sprites: [{ look: LS.newLook() }, { look: LS.newLook() }],
+        steps: [
+          { speaker: 'Someone', text: 'The music is too loud to lie properly.' },
+          { speaker: 'You', text: 'Then we will have to be honest, or dance.' }
+        ]
+      });
+    }
+  },
+  {
+    id: 'hospital',
+    name: 'Hospital waiting room',
+    play() {
+      LS.Cutscenes.play({
+        title: 'Hospital', bg: 'hospital',
+        sprites: [{ look: LS.newLook() }],
+        steps: [{ speaker: 'Nurse', text: 'They will call your name. It is never the pronunciation you expect.' }]
+      });
+    }
+  },
+  {
+    id: 'court',
+    name: 'Courtroom',
+    play() {
+      LS.Cutscenes.play({
+        title: 'Court', bg: 'court',
+        sprites: [{ look: LS.newLook() }],
+        steps: [{ speaker: 'Clerk', text: 'Your name is read as if it belonged to a file. It does.' }]
+      });
+    }
+  },
+  {
+    id: 'stadium',
+    name: 'Stadium',
+    play() {
+      LS.Cutscenes.play({
+        title: 'Match day', bg: 'stadium',
+        sprites: [{ look: LS.newLook() }],
+        steps: [{ speaker: 'Coach', text: 'Ignore the noise. Hit the thing in front of you.' }]
+      });
+    }
+  }
+];
+
+LS.DEV_MINIGAMES = [
+  { id: 'timing', name: 'Timing bar', hint: 'Sports / trades' },
+  { id: 'memory', name: 'Memory sequence', hint: 'Exams' },
+  { id: 'dialogue', name: 'Dialogue choices', hint: 'Interview / acting' },
+  { id: 'office', name: 'Inbox priority', hint: 'Office jobs' },
+  { id: 'sales', name: 'Sales close', hint: 'Retail / sales' },
+  { id: 'doctor', name: 'Triage cases', hint: 'Medicine' },
+  { id: 'police', name: 'Incident decisions', hint: 'Police' },
+  { id: 'shot', name: 'Moving target', hint: 'Basketball / aim' },
+  { id: 'penalty', name: 'Penalty shot', hint: 'Football' },
+  { id: 'boxing', name: 'Boxing timing', hint: 'Combat sport' },
+  { id: 'afl', name: 'AFL mark', hint: 'Australian rules' },
+  { id: 'content', name: 'Content take', hint: 'Influencer' }
+];
+
+LS.Dev = {
+  on: false,
+  tab: 'minigames',
+
+  boot() {
+    const saved = localStorage.getItem('aeternum.dev') === '1';
+    if (saved) this.enable(true);
+    const t = document.getElementById('btn-dev-toggle');
+    if (t) t.onclick = () => this.toggle();
+    const fab = document.getElementById('dev-fab');
+    if (fab) fab.onclick = () => this.open();
+    window.addEventListener('keydown', (e) => {
+      if (e.shiftKey && e.key === 'D') this.toggle();
+      if (this.on && e.key === '`' && !e.repeat) this.open();
+    });
+  },
+
+  toggle() {
+    this.on ? this.disable() : this.enable();
+  },
+
+  enable(silent) {
+    this.on = true;
+    localStorage.setItem('aeternum.dev', '1');
+    const fab = document.getElementById('dev-fab');
+    if (fab) fab.classList.add('show');
+    const t = document.getElementById('btn-dev-toggle');
+    if (t) t.textContent = 'Dev Mode ON';
+    if (!silent) LS.UI.toast('Dev Mode', 'Shift+D toggles. Backtick or DEV opens the panel.');
+  },
+
+  disable() {
+    this.on = false;
+    localStorage.setItem('aeternum.dev', '0');
+    const fab = document.getElementById('dev-fab');
+    if (fab) fab.classList.remove('show');
+    const t = document.getElementById('btn-dev-toggle');
+    if (t) t.textContent = 'Dev Mode';
+  },
+
+  ensureLife() {
+    if (LS.Game.life && LS.UI.c) return LS.Game.life;
+    const life = LS.createLife({ name: 'Dev Subject', traits: ['ambitious', 'charming'] });
+    life.ageYears = 18;
+    life.ageMonths = 18 * 12;
+    life.calYear = life.birthYear + 18;
+    life.money = 25000;
+    LS.Game.life = life;
+    LS.UI.c = life;
+    return life;
+  },
+
+  open() {
+    if (!this.on) this.enable(true);
+    this.render();
+  },
+
+  render() {
+    const ov = document.getElementById('overlay');
+    ov.className = 'overlay show';
+    ov.innerHTML = `<div class="dev-panel">
+      <div class="dev-head">
+        <span>DEV MODE</span>
+        <button class="btn sm" id="dev-close">Close</button>
+      </div>
+      <div class="dev-tabs">
+        <button data-tab="minigames" class="${this.tab==='minigames'?'on':''}">Minigames</button>
+        <button data-tab="events" class="${this.tab==='events'?'on':''}">Events</button>
+        <button data-tab="scenes" class="${this.tab==='scenes'?'on':''}">Scenes</button>
+        <button data-tab="cheats" class="${this.tab==='cheats'?'on':''}">Cheats</button>
+      </div>
+      <div class="dev-body" id="dev-body"></div>
+    </div>`;
+    ov.querySelector('#dev-close').onclick = () => LS.UI.closeOverlay();
+    ov.querySelectorAll('.dev-tabs button').forEach(b => {
+      b.onclick = () => { this.tab = b.dataset.tab; this.render(); };
+    });
+    const body = ov.querySelector('#dev-body');
+    if (this.tab === 'minigames') this.drawMinigames(body);
+    if (this.tab === 'events') this.drawEvents(body);
+    if (this.tab === 'scenes') this.drawScenes(body);
+    if (this.tab === 'cheats') this.drawCheats(body);
+  },
+
+  drawMinigames(body) {
+    body.innerHTML = `<p class="tiny">Runs the real minigame engine. Score is logged if a life exists.</p>
+      <div class="dev-grid"></div>`;
+    const grid = body.querySelector('.dev-grid');
+    LS.DEV_MINIGAMES.forEach(mg => {
+      const b = document.createElement('button');
+      b.className = 'dev-item';
+      b.innerHTML = `<b>${mg.name}</b><span>${mg.id} · ${mg.hint}</span>`;
+      b.onclick = () => {
+        LS.UI.closeOverlay();
+        LS.Minigames.play(mg.id, { title: mg.name, hint: mg.hint }, (score) => {
+          const c = LS.Game.life;
+          if (c) LS.log(c, '[DEV] ' + mg.name + ' → ' + score, score >= 60 ? 'good' : 'bad');
+          LS.UI.toast(mg.name, 'Score ' + score);
+          if (c) LS.UI.refresh();
+        });
+      };
+      grid.appendChild(b);
+    });
+  },
+
+  drawEvents(body) {
+    const list = LS.Events.catalog || [];
+    body.innerHTML = `<p class="tiny">${list.length} events. Fires on the current life (a dummy life is created if needed).</p>
+      <div class="dev-grid"></div>`;
+    const grid = body.querySelector('.dev-grid');
+    list.forEach(ev => {
+      const b = document.createElement('button');
+      b.className = 'dev-item';
+      b.innerHTML = `<b>${ev.title || ev.id}</b><span>${ev.id}${ev.minAge!=null?' · age '+ev.minAge:''}${ev.special?' · '+ev.special:''}</span>`;
+      b.onclick = () => {
+        this.ensureLife();
+        LS.UI.show('play');
+        LS.UI.refresh();
+        LS.UI.closeOverlay();
+        LS.UI.presentEvent(ev);
+      };
+      grid.appendChild(b);
+    });
+  },
+
+  drawScenes(body) {
+    body.innerHTML = `<p class="tiny">Cutscene framework previews.</p><div class="dev-grid"></div>`;
+    const grid = body.querySelector('.dev-grid');
+    LS.DEV_SCENES.forEach(sc => {
+      const b = document.createElement('button');
+      b.className = 'dev-item';
+      b.innerHTML = `<b>${sc.name}</b><span>${sc.id}</span>`;
+      b.onclick = () => { LS.UI.closeOverlay(); sc.play(); };
+      grid.appendChild(b);
+    });
+  },
+
+  drawCheats(body) {
+    body.innerHTML = `<p class="tiny">Needs an active life. Dummy life is spawned if you are on the title screen.</p>
+      <div class="dev-cheats" id="dev-cheats"></div>`;
+    const box = body.querySelector('#dev-cheats');
+    const cheats = [
+      ['+$10,000', () => { LS.addMoney(this.ensureLife(), 10000, 'dev'); }],
+      ['+$100,000', () => { LS.addMoney(this.ensureLife(), 100000, 'dev'); }],
+      ['Age +1 year', () => { const c=this.ensureLife(); for(let i=0;i<12;i++) LS.Sim.advanceMonth(c,true); }],
+      ['Age = 18', () => this.setAge(18)],
+      ['Age = 30', () => this.setAge(30)],
+      ['Age = 65', () => this.setAge(65)],
+      ['Max stats', () => {
+        const c=this.ensureLife();
+        ['intel','charisma','fitness','looks','happiness','health','confidence','reputation','fame'].forEach(k => c[k]=95);
+        c.stress = 5;
+      }],
+      ['God health', () => { this.ensureLife().health = 100; }],
+      ['Set partner', () => {
+        const c=this.ensureLife();
+        const n=LS.addPerson(c, LS.makeNPC({ age:c.ageYears, role:'romance', relation:'Partner', bond:80, attraction:80 }));
+        c.partnerId = n.id;
+      }],
+      ['Pro athlete', () => {
+        const c=this.ensureLife();
+        LS.Sim.startSport(c, 'afl');
+        c.career.id='athlete'; c.career.title='Professional — AFL'; c.sport.rating=80; c.sport.contract=120000;
+      }],
+      ['Famous', () => { this.ensureLife().fame = 80; }],
+      ['Criminal record', () => { const c=this.ensureLife(); c.crime.record=true; c.crime.heat=40; }],
+      ['Trigger death', () => { const c=this.ensureLife(); c.alive=false; c.causeOfDeath='dev command'; LS.UI.showDeath(); }]
+    ];
+    cheats.forEach(([label, fn]) => {
+      const b = document.createElement('button');
+      b.className = 'btn sm';
+      b.textContent = label;
+      b.onclick = () => {
+        fn();
+        const c = LS.Game.life;
+        if (c) {
+          LS.UI.c = c;
+          LS.UI.show('play');
+          LS.UI.refresh();
+          LS.Game.autosave();
+        }
+        LS.UI.toast('Cheat', label);
+      };
+      box.appendChild(b);
+    });
+  },
+
+  setAge(n) {
+    const c = this.ensureLife();
+    c.ageYears = n;
+    c.ageMonths = n * 12;
+    c.calYear = c.birthYear + n;
+  }
+};
+
+
+/* Game orchestrator */
+window.LS = window.LS || {};
+
+LS.Game = {
+  life: null,
+
+  boot() {
+    LS.UI.bindCreate();
+    LS.Dev.boot();
+    LS.drawAvatar(document.getElementById('title-av'), {
+      skin: 1, hair: 0, hairStyle: 'short', eyes: 0, shirt: 0
+    });
+    document.getElementById('btn-new').onclick = () => this.newLife();
+    document.getElementById('btn-continue').onclick = () => this.continue();
+    document.getElementById('btn-continue').disabled = !LS.Save.has();
+    document.getElementById('btn-save').onclick = () => { this.autosave(); LS.UI.toast('Saved', 'Life written to this browser.'); };
+    document.getElementById('btn-menu').onclick = () => {
+      LS.UI.modal('Menu', 'Pause this life.', [
+        { label: 'View extra stats', apply: () => LS.UI.sheetStats() },
+        { label: 'Save', apply: () => { this.autosave(); LS.UI.toast('Saved', 'Done.'); } },
+        { label: 'Title screen', apply: () => {
+          this.autosave();
+          document.getElementById('btn-continue').disabled = !LS.Save.has();
+          LS.UI.show('title');
+        }}
+      ]);
+    };
+    document.getElementById('nav-people').onclick = () => LS.UI.sheetPeople();
+    document.getElementById('nav-career').onclick = () => LS.UI.sheetCareer();
+    document.getElementById('nav-assets').onclick = () => LS.UI.sheetAssets();
+    document.getElementById('nav-activities').onclick = () => LS.UI.sheetActivities();
+    document.getElementById('hud-av').onclick = () => LS.UI.showBody();
+    document.getElementById('btn-age-month').onclick = () => {
+      if (!this.life || !this.life.alive) return;
+      LS.Sim.advanceMonth(this.life);
+      LS.log(this.life, 'A month passed.');
+      LS.UI.refresh();
+      this.autosave();
+    };
+    document.getElementById('btn-age-year').onclick = () => LS.UI.doAction('year');
+    LS.UI.show('title');
+  },
+
+  newLife() {
+    LS.UI.show('create');
+  },
+
+  start(life) {
+    this.life = life;
+    LS.UI.c = life;
+    LS.log(life, 'I was born in ' + life.city + ' to ' + life.people[0].name.split(' ')[0] + ' and ' + life.people[1].name.split(' ')[0] + '.', 'gold');
+    // Compress infancy so the player arrives at memory.
+    const infancy = [
+      'The kitchen was always warm. Someone sang off-key on purpose.',
+      'I learned the names of things by grabbing them.',
+      'I had a fever one winter. The house went quiet around my breathing.',
+      'I told my first lie. It was small and tasted like pride.'
+    ];
+    infancy.forEach((line, i) => {
+      for (let m = 0; m < 12 && life.alive; m++) LS.Sim.advanceMonth(life, true);
+      LS.log(life, line, i === 2 ? 'bad' : 'teal');
+    });
+    for (let m = 0; m < 12 && life.alive; m++) LS.Sim.advanceMonth(life, true);
+    LS.log(life, 'I started school. The bag was too big for me.', 'gold');
+    LS.Cutscenes.play({
+      title: 'Beginning',
+      bg: 'home',
+      sprites: [{ look: life.people[0].look }, { look: life.people[1].look }],
+      steps: [
+        { speaker: life.people[0].name.split(' ')[0], text: 'A small sound fills the room. Someone starts crying who is not you.' },
+        { speaker: life.people[1].name.split(' ')[0], text: 'They name you ' + life.name.split(' ')[0] + '. The year is ' + life.calYear + '.' },
+        { speaker: 'Aeternum', text: 'Years will pass quickly. When a moment matters, the game will stop and ask you to live it.' }
+      ]
+    }, () => {
+      LS.UI.show('play');
+      LS.UI.refresh();
+      this.autosave();
+    });
+  },
+
+  continue() {
+    const data = LS.Save.read();
+    if (!data) { LS.UI.notify('No save found.'); return; }
+    this.life = data;
+    LS.UI.c = data;
+    LS.UI.show('play');
+    LS.UI.refresh();
+  },
+
+  autosave() {
+    if (this.life) LS.Save.write(this.life);
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => LS.Game.boot());
+
+</script>
+</body>
+</html>
